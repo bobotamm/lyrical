@@ -1,25 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
 
-function App() {
+import Button from '@material-ui/core/Button';
+//import PhotoCamera from '@material-ui/icons/PhotoCamera';
+//import IconButton from '@material-ui/core/IconButton';
+import React from 'react'; //{useState, useEffect} from 'react';
+//import axios from 'axios';
+ 
+
+const App = () => {
+ 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='lyrical-upload'>
+      <div style={{ width: '100%', float: 'center', padding: '25'}}>
+        <h3>Upload your video here!</h3> <br />
+      </div>
+      <input 
+        type="file"
+        accept="image/*"
+        style={{ display: 'none'}}
+        id="contained-button-file"
+      />
+      <label htmlFor="contained-button-file">
+        <Button variant="contained" color="primary" component="span">
+          Upload
+        </Button>
+      </label>
     </div>
   );
 }
+ 
 
 export default App;
