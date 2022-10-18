@@ -6,12 +6,16 @@ app = Flask(__name__)
 CORS(app)
   
 # Route for seeing a data
-@app.route('/api/upload', methods = ['GET'])
+@app.route('/upload', methods = ['GET', 'POST'])
 def upload_file():
     file = request.json
+    print(file)
+    print(request)
     print(jsonify(file))
+
     return "done"
   
 # Running app
 if __name__ == '__main__':
     app.run(debug=True)
+
