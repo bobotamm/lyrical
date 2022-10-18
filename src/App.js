@@ -4,10 +4,6 @@ import Button from '@material-ui/core/Button';
 //import IconButton from '@material-ui/core/IconButton';
 // import React from 'react'; //{useState, useEffect} from 'react';
 import './App.css'
-//import axios from 'axios';
-// import axios from 'axios';
-// import React, {Component} from 'react';
-
 import axios from 'axios';
 
 import React, { Component, useState, useEffect  } from 'react';
@@ -44,10 +40,19 @@ class App extends Component {
     // Request made to the backend api
     // Send formData object
     // console.log(formData)
-    axios
-    .post("/api/upload", formData)
-    .then(res => console.log(res))
-    .catch(err => console.warn(err));
+    // axios
+    // .post("/api/upload", formData)
+    // .then(res => console.log(res.response.data))
+    // .catch(err => console.warn(err));
+    fetch('http://localhost:3000/upload', {
+      method: 'POST',
+      body: formData,
+    }).then((response) => {
+      response.json().then((body) => {
+        console.log("hehee")
+        this.setState({ selectedFile: formData });
+      });
+    });
 
   };
 
@@ -73,7 +78,7 @@ class App extends Component {
       return (
         <div>
           <br />
-          <h4>Choose before Pressing the Upload button</h4>
+          <h4>Choose before pressing the upload button</h4>
         </div>
       );
     }
@@ -83,9 +88,6 @@ class App extends Component {
 
     return (
       <div>
-        <h1>
-          GeeksforGeeks
-        </h1>
         <h3>
           Upload your video here!
         </h3>
