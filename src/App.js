@@ -44,7 +44,7 @@ class App extends Component {
     // .post("/api/upload", formData)
     // .then(res => console.log(res.response.data))
     // .catch(err => console.warn(err));
-    fetch('http://localhost:3000/upload', {
+    fetch('http://localhost:5000/upload', {
       method: 'POST',
       body: formData,
     }).then((response) => {
