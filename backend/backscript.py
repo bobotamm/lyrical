@@ -11,7 +11,8 @@ DONE = {"result":True}
 @app.route('/upload', methods = ['GET', 'POST'])
 def upload_file():
     file = request.files['myFile']
-    with open('test.jpg', 'wb') as f:
+    print(file.mimetype)
+    with open('test.jpeg', 'wb') as f:
         file.save(f)
     # print(jsonify(file))
 
