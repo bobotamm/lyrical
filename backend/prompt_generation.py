@@ -36,7 +36,7 @@ def transform_lyrics_to_prompt(author, title, lyrics_list, fps):
     animation_prompts = {}
     animation_prompts[0] = prompt_intialization(author, title)
     for lyrics_time, lyrics in lyrics_list:
-        lyrics_frame = int(lyrics_time * fps) - 110
+        lyrics_frame = int(lyrics_time * fps)
         prompt = prompt_engineering(lyrics)
         animation_prompts[lyrics_frame] = prompt
     return animation_prompts
@@ -56,7 +56,7 @@ def strength_schedule_generation(animation_prompts):
 
 
 
-parsed_file = parse_lrc_file('Anderson Paak - The Bird.lrc')
+parsed_file = parse_lrc_file('Katy Perry - Roar.lrc')
 animation_prompts = transform_lyrics_to_prompt(parsed_file['author'], parsed_file['title'], parsed_file['lyrics'], 10)
 strength_schedule = strength_schedule_generation(animation_prompts)
 print(animation_prompts)
