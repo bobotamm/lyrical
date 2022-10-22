@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 # from flask_cors import CORS
   
 # Initializing flask app
@@ -17,6 +17,10 @@ def upload_file():
     # print(jsonify(file))
 
     return jsonify(DONE)
+
+@app.route('/')
+def home():
+    return make_response("Hello World!", 200)
   
 # Running app
 if __name__ == '__main__':
