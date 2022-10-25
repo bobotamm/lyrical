@@ -1,10 +1,33 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, redirect, url_for
+import os
+from dotenv import load_dotenv
+from celery import Celery
+import time
+import requests
+import json
 # from flask_cors import CORS
-  
+
+def make_celery(app):
+    celery = Celery(app.import_name)
+    celery.conf.update(app.config["CELERY_CONFIG"])
+
+    class ContextTask(celery.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery
+
 # Initializing flask app
 app = Flask(__name__)
 # CORS(app)
-  
+load_dotenv()
+app.config.update(
+    CELERY_BROKER_URL=os.environ.get("CELERY_BROKER_URL"),
+    CELERY_BACKEND_URL=os.environ.get("CELERY_BACKEND_URL"),
+)
+celery = make_celery(app)
 DONE = {"result":True}
 
 # Route for seeing a data
@@ -21,6 +44,19 @@ def upload_file():
 @app.route('/')
 def home():
     return make_response("Hello World!", 200)
+
+@app.route('/test_celery')
+def test_celery():
+    test_celery.delay()
+    return redirect(url_for("home"))
+
+@celery.task()
+def test_celery():
+    print("Testing Start")
+    time.sleep(5)
+    with open('test_cel.txt', 'w') as f:
+        f.write("Testing Complete")
+    print("Testing Complete")
   
 # Running app
 if __name__ == '__main__':
