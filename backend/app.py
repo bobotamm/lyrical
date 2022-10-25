@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, make_response, redirect, url_for
 import os
-from dotenv import load_dotenv
 from celery import Celery
 import time
 import requests
@@ -25,8 +24,6 @@ def make_celery(app):
 
 # Initializing flask app
 app = Flask(__name__)
-# CORS(app)
-load_dotenv()
 app.config.update(
     CELERY_BROKER_URL="amqp://lyrical:lyrical@localhost/lyrical",
     CELERY_BACKEND_URL="db+sqlite:///test.db",
