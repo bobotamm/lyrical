@@ -24,8 +24,8 @@ app = Flask(__name__)
 # CORS(app)
 load_dotenv()
 app.config.update(
-    CELERY_BROKER_URL=os.environ.get("CELERY_BROKER_URL"),
-    CELERY_BACKEND_URL=os.environ.get("CELERY_BACKEND_URL"),
+    CELERY_BROKER_URL="amqp://lyrical:lyrical@localhost/lyrical",
+    CELERY_BACKEND_URL="db+sqlite:///test.db",
 )
 celery = make_celery(app)
 DONE = {"result":True}
