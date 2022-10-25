@@ -8,8 +8,12 @@ import json
 # from flask_cors import CORS
 
 def make_celery(app):
-    celery = Celery(app.import_name)
-    celery.conf.update(app.config["CELERY_CONFIG"])
+    celery = Celery(
+        app.import_name,
+        backend=app.config["CELERY_BACKEND_URL"],
+        broker=app.config["CELERY_BROKER_URL"],
+    )
+    celery.conf.update(app.config)
 
     class ContextTask(celery.Task):
         def __call__(self, *args, **kwargs):
