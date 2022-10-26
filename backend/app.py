@@ -4,6 +4,7 @@ from celery import Celery
 import time
 import requests
 import json
+import subprocess
 # from flask_cors import CORS
 
 def make_celery(app):
@@ -48,16 +49,19 @@ def home():
 
 @app.route('/test_celery')
 def test_celery():
-    test_celery.delay()
+    test_celery_c.delay()
     return redirect(url_for("home"))
 
 @celery.task()
-def test_celery():
+def test_celery_c():
     print("Testing Start")
-    time.sleep(5)
-    with open('test_cel.txt', 'w') as f:
-        f.write("Testing Complete")
-    print("Testing Complete")
+    with open('log.log', 'w') as f:
+        f.write('Working!' + str(time.time()))
+    exit_code = subprocess.run(["python", "run.py", "--enable_animation_mode", "--settings", "runSettings_Template.txt"], capture_output=True, text=True, cwd="./DeforumStableDiffusionLocal/")
+    with open('log.log', 'w') as f:
+        f.write('Complete')
+        f.write(str(exit_code.returncode))
+        f.write(str(exit_code.stdout))
   
 # Running app
 if __name__ == '__main__':
