@@ -1,13 +1,10 @@
-from flask import Flask, request, jsonify, make_response, redirect, url_for
+from flask import Flask, request, jsonify, make_response, redirect, url_for, send_from_directory, current_app
 import os
 from celery import Celery
 import time
 import requests
 import json
-<<<<<<< HEAD
-=======
 import subprocess
->>>>>>> fbf274906c5f46225e092f2576f3050feac4e8c3
 # from flask_cors import CORS
 
 def make_celery(app):
@@ -46,24 +43,21 @@ def upload_file():
 
     return jsonify(DONE)
 
+
+# file extension is hard coded 
+@app.route('/download', methods = ['GET', 'POST'])
+def download_file():
+    uploads = os.path.join(current_app.root_path)
+    return send_from_directory(uploads, "test.jpeg", as_attachment=True)
+    # response = make_response("download!", 200) 
+    # return response  
+
 @app.route('/')
 def home():
     return make_response("Hello World!", 200)
 
 @app.route('/test_celery')
 def test_celery():
-<<<<<<< HEAD
-    test_celery.delay()
-    return redirect(url_for("home"))
-
-@celery.task()
-def test_celery():
-    print("Testing Start")
-    time.sleep(5)
-    with open('test_cel.txt', 'w') as f:
-        f.write("Testing Complete")
-    print("Testing Complete")
-=======
     test_celery_c.delay()
     return redirect(url_for("home"))
 
@@ -77,7 +71,6 @@ def test_celery_c():
         f.write('Complete')
         f.write(str(exit_code.returncode))
         f.write(str(exit_code.stdout))
->>>>>>> fbf274906c5f46225e092f2576f3050feac4e8c3
   
 # Running app
 if __name__ == '__main__':

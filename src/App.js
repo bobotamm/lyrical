@@ -1,18 +1,13 @@
-
-import Button from '@material-ui/core/Button';
-//import PhotoCamera from '@material-ui/icons/PhotoCamera';
-//import IconButton from '@material-ui/core/IconButton';
-// import React from 'react'; //{useState, useEffect} from 'react';
 import './App.css'
-import axios from 'axios';
-
-import React, { Component, useState, useEffect  } from 'react';
+import React, { Component, useState, useEffect } from 'react';
+import { Link } from 'react-router';
 
 class App extends Component {
 
   state = {
     // Initially, no file is selected
-    selectedFile: null
+    selectedFile: null,
+    downloadFile: null
   };
 
   // On file select (from the pop up)
@@ -37,13 +32,6 @@ class App extends Component {
     // Details of the uploaded file
     console.log(this.state.selectedFile);
 
-    // Request made to the backend api
-    // Send formData object
-    // console.log(formData)
-    // axios
-    // .post("/api/upload", formData)
-    // .then(res => console.log(res.response.data))
-    // .catch(err => console.warn(err));
     fetch('http://localhost:5000/upload', {
       method: 'POST',
       body: formData,
@@ -55,6 +43,7 @@ class App extends Component {
     });
 
   };
+
 
 
   // File content to be displayed after
@@ -84,20 +73,79 @@ class App extends Component {
     }
   };
 
+  onDownload = () => {
+
+  }
+
+  getDownloadFile = () => {
+
+    let headers = new Headers();
+
+    headers.append('Access-Control-Allow-Origin', "*");
+    headers.append('Access-Control-Allow-Credentials', 'true');
+    headers.append('Content-Type', 'application/octet-stream');
+    headers.append('Accept', 'application/json');
+    headers.append('Access-Control-Allow-Methods', "OPTIONS, POST, GET")
+
+    fetch('http://localhost:5000/download', {
+      method: 'GET',
+      headers: headers,
+    })
+      .then((response) => response.blob())
+      .then((blob) => {
+        // Create blob link to download
+        const url = window.URL.createObjectURL(
+          new Blob([blob]),
+        );
+
+        console.log(url)
+        const link = document.createElement('a');
+        link.href = `your_link.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // const link = document.createElement('a');
+        // link.href = url;
+        // link.setAttribute(
+        //   'download',
+        //   `downloadTest.pdf`,
+        // );
+
+        // // Append to html link element page
+        // document.body.appendChild(link);
+
+        // // Start download
+        // link.click();
+
+        // // Clean up and remove the link
+        // link.parentNode.removeChild(link);
+      });
+  }
+
   render() {
 
     return (
       <div>
+
         <h3>
           Upload your video here!
         </h3>
+
         <div>
           <input type="file" onChange={this.onFileChange} />
           <button onClick={this.onFileUpload}>
             Upload!
           </button>
         </div>
+
         {this.fileData()}
+
+        <div>
+          <button onClick={() => { this.getDownloadFile() }}>
+            Download Video
+          </button>
+        </div>
       </div>
     );
   }
