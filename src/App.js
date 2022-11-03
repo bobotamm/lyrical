@@ -1,6 +1,5 @@
 import './App.css'
 import GenerateVideo from "./GenerateVideo"
-import axios from 'axios';
 
 import React, { Component, useState, useEffect } from 'react';
 
@@ -55,14 +54,8 @@ class App extends Component {
       return (
         <div>
           <h2>File Details:</h2>
-
           <p>File Name: {this.state.selectedFile.name}</p>
           <p>File Type: {this.state.selectedFile.type}</p>
-          <p>
-            Last Modified:{" "}
-            {this.state.selectedFile.lastModifiedDate.toDateString()}
-          </p>
-
         </div>
       );
     } else {
@@ -79,8 +72,17 @@ class App extends Component {
 
   }
 
-  getDownloadFile = () => {
+  getDownloadFile = async () => {
+    // console.log("download")
+    // const response = await fetch("http://127.0.0.1:5000/download", {
+    //   method: "POST",
+    //   headers: { "Access-Control-Allow-Origin": "*" }
+    // })
 
+    // ;
+    // if (response.ok) {
+    //   console.log("it worked!");
+    // }
     let headers = new Headers();
 
     headers.append('Access-Control-Allow-Origin', "*");
@@ -95,33 +97,27 @@ class App extends Component {
     })
       .then((response) => response.blob())
       .then((blob) => {
+        console.log(blob)
         // Create blob link to download
         const url = window.URL.createObjectURL(
           new Blob([blob]),
         );
-
         console.log(url)
         const link = document.createElement('a');
-        link.href = `your_link.pdf`;
+        link.href = url;
+        link.setAttribute(
+          'download',
+          `downloadFile.jpeg`,
+        );
+
+        // Append to html link element page
         document.body.appendChild(link);
+
+        // Start download
         link.click();
-        document.body.removeChild(link);
 
-        // const link = document.createElement('a');
-        // link.href = url;
-        // link.setAttribute(
-        //   'download',
-        //   `downloadTest.pdf`,
-        // );
-
-        // // Append to html link element page
-        // document.body.appendChild(link);
-
-        // // Start download
-        // link.click();
-
-        // // Clean up and remove the link
-        // link.parentNode.removeChild(link);
+        // Clean up and remove the link
+        link.parentNode.removeChild(link);
       });
   }
 

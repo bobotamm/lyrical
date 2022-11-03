@@ -42,21 +42,20 @@ def upload_file():
     print(file.mimetype)
     with open('test.jpeg', 'wb') as f:
         file.save(f)
-    # print(jsonify(file))
     response = jsonify(DONE)
     response.headers.add("Access-Control-Allow-Origin","*")
-    # response.headers.add('Access-Control-Allow-Methods', "OPTIONS, POST, GET")
     return response
 
 
 # file extension is hard coded 
 @app.route('/download', methods = ['GET', 'POST'])
+@cross_origin(origin="*", headers = ['Content-Type', 'Authorization'])
 def download_file():
     downloads = os.path.join(current_app.root_path)
-    send_from_directory(downloads, "test.jpeg", as_attachment=True)
-    response = make_response("download!", 200)
-    response.headers.add("Access-Control-Allow-Origin","*")
-    return response  
+    return send_from_directory(downloads, "test.jpeg", as_attachment=True)
+    # response = make_response("download!", 200)
+    # return response  
+
 
 @app.route('/')
 def home():
