@@ -1,6 +1,8 @@
 import './App.css'
+import GenerateVideo from "./GenerateVideo"
+import axios from 'axios';
+
 import React, { Component, useState, useEffect } from 'react';
-import { Link } from 'react-router';
 
 class App extends Component {
 
@@ -123,6 +125,16 @@ class App extends Component {
       });
   }
 
+  onGenerate = async () => {
+    const response = await fetch("http://127.0.0.1:5000/generate", {
+      method: "POST",
+      headers: { "Access-Control-Allow-Origin": "*" }
+    });
+    if (response.ok) {
+      console.log("it worked!");
+    }
+  };
+
   render() {
 
     return (
@@ -140,6 +152,7 @@ class App extends Component {
         </div>
 
         {this.fileData()}
+        <GenerateVideo />
 
         <div>
           <button onClick={() => { this.getDownloadFile() }}>

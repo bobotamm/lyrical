@@ -6,8 +6,7 @@ import requests
 import json
 import subprocess
 from flask_cors import CORS, cross_origin
-
-
+# from flask_cors import CORS
 
 def make_celery(app):
     celery = Celery(
@@ -27,9 +26,7 @@ def make_celery(app):
 
 # Initializing flask app
 app = Flask(__name__)
-app.config['CORS_HEADERS'] = 'Content-Type'
-cors = CORS(app)
-
+cors = CORS(app, resources={r"/generate": {"origins": "*"}})
 app.config.update(
     CELERY_BROKER_URL="amqp://lyrical:lyrical@localhost/lyrical",
     CELERY_BACKEND_URL="db+sqlite:///test.db",
@@ -69,6 +66,14 @@ def home():
 def test_celery():
     test_celery_c.delay()
     return redirect(url_for("home"))
+
+
+@app.route('/generate', methods = ['GET', 'POST'])
+@cross_origin(origin="*", headers = ['Content-Type', 'Authorization'])
+def generate_video():
+    ### data = request.get_json()
+    response = jsonify(message = "the request worked!")
+    return response
 
 @celery.task()
 def test_celery_c():
