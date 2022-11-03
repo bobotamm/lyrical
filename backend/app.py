@@ -27,8 +27,8 @@ def make_celery(app):
 
 # Initializing flask app
 app = Flask(__name__)
-cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
+cors = CORS(app)
 
 app.config.update(
     CELERY_BROKER_URL="amqp://lyrical:lyrical@localhost/lyrical",
@@ -46,7 +46,7 @@ def upload_file():
     with open('test.jpeg', 'wb') as f:
         file.save(f)
     # print(jsonify(file))
-    response = jsonify(response)
+    response = jsonify(DONE)
     response.headers.add("Access-Control-Allow-Origin","*")
     # response.headers.add('Access-Control-Allow-Methods', "OPTIONS, POST, GET")
     return response
