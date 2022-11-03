@@ -88,7 +88,7 @@ class App extends Component {
     headers.append('Access-Control-Allow-Methods', "OPTIONS, POST, GET")
 
     fetch('http://localhost:5000/download', {
-      method: 'GET',
+      method: 'POST',
       headers: headers,
     })
       .then((response) => response.blob())

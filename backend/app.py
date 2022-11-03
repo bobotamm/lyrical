@@ -5,7 +5,9 @@ import time
 import requests
 import json
 import subprocess
-# from flask_cors import CORS
+from flask_cors import CORS, cross_origin
+
+
 
 def make_celery(app):
     celery = Celery(
@@ -25,6 +27,9 @@ def make_celery(app):
 
 # Initializing flask app
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 app.config.update(
     CELERY_BROKER_URL="amqp://lyrical:lyrical@localhost/lyrical",
     CELERY_BACKEND_URL="db+sqlite:///test.db",
@@ -34,23 +39,27 @@ DONE = {"result":True}
 
 # Route for seeing a data
 @app.route('/upload', methods = ['GET', 'POST'])
+# @cross_origin()
 def upload_file():
     file = request.files['myFile']
     print(file.mimetype)
     with open('test.jpeg', 'wb') as f:
         file.save(f)
     # print(jsonify(file))
-
-    return jsonify(DONE)
+    response = jsonify(response)
+    response.headers.add("Access-Control-Allow-Origin","*")
+    # response.headers.add('Access-Control-Allow-Methods', "OPTIONS, POST, GET")
+    return response
 
 
 # file extension is hard coded 
 @app.route('/download', methods = ['GET', 'POST'])
 def download_file():
-    uploads = os.path.join(current_app.root_path)
-    return send_from_directory(uploads, "test.jpeg", as_attachment=True)
-    # response = make_response("download!", 200) 
-    # return response  
+    downloads = os.path.join(current_app.root_path)
+    send_from_directory(downloads, "test.jpeg", as_attachment=True)
+    response = make_response("download!", 200)
+    response.headers.add("Access-Control-Allow-Origin","*")
+    return response  
 
 @app.route('/')
 def home():
