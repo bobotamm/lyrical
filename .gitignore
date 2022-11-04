@@ -24,3 +24,9 @@ yarn-error.log*
 
 # cache
 *.pyc
+
+# .lrc and audios
+*.lrc
+*.mp3
+*.wav
+backend/MxLRC
