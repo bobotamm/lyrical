@@ -53,6 +53,10 @@ def download_file():
     # response = make_response("download!", 200)
     # return response  
 
+@app.route('/download_test/<filename>', methods = ['GET', 'POST'])
+def download_test_file(filename):
+    downloads = os.path.join(current_app.root_path)
+    return send_from_directory(downloads, filename, as_attachment=True)
 
 @app.route('/')
 def home():
