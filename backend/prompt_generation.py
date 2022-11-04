@@ -109,4 +109,5 @@ def generate_prompt(author, title, length = -1, fps = 10):
         json.dump(template, f)
 
 
-generate_prompt("Drake", "God's Plan")
+generate_prompt("Katy Perry", "Roar", 20)
+

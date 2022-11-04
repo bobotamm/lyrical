@@ -55,7 +55,7 @@ def download_file():
 
 @app.route('/download_test/<filename>', methods = ['GET', 'POST'])
 def download_test_file(filename):
-    downloads = os.path.join(current_app.root_path)
+    downloads = os.path.join(current_app.root_path, "DeforumStableDiffusionLocal", "output", "2022-11", "test")
     return send_from_directory(downloads, filename, as_attachment=True)
 
 @app.route('/')
