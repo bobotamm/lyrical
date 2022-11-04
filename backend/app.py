@@ -6,7 +6,6 @@ import requests
 import json
 import subprocess
 from flask_cors import CORS, cross_origin
-# from flask_cors import CORS
 
 def make_celery(app):
     celery = Celery(
@@ -26,7 +25,7 @@ def make_celery(app):
 
 # Initializing flask app
 app = Flask(__name__)
-cors = CORS(app, resources={r"/generate": {"origins": "*"}})
+cors = CORS(app)
 app.config.update(
     CELERY_BROKER_URL="amqp://lyrical:lyrical@localhost/lyrical",
     CELERY_BACKEND_URL="db+sqlite:///test.db",
@@ -36,7 +35,6 @@ DONE = {"result":True}
 
 # Route for seeing a data
 @app.route('/upload', methods = ['GET', 'POST'])
-# @cross_origin()
 def upload_file():
     file = request.files['myFile']
     print(file.mimetype)
@@ -49,7 +47,6 @@ def upload_file():
 
 # file extension is hard coded 
 @app.route('/download', methods = ['GET', 'POST'])
-@cross_origin(origin="*", headers = ['Content-Type', 'Authorization'])
 def download_file():
     downloads = os.path.join(current_app.root_path)
     return send_from_directory(downloads, "test.jpeg", as_attachment=True)

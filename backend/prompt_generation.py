@@ -1,5 +1,10 @@
+import subprocess
+import os
+
 STRONG_STRENGTH = str(0.4)
 WEAK_STRENGTH = str(0.65)
+OUTPUT_PATH = os.getcwd() + "\input\lyrics"
+MXLRC_PATH = os.getcwd() + "\MxLRC"
 
 def process_time(time_str):
     minutes, seconds = time_str.split(':')
@@ -54,10 +59,19 @@ def strength_schedule_generation(animation_prompts):
     res = ','.join([str(f[0]) + f[1] for f in str_joiner])
     return res
 
+def download_lrc(author, title):
+    target = author + ", " + title
+    output_file_name = author + " - " + title + ".lrc"
+    subprocess.run(["python", "mxlrc.py", "--song", target, "--out", OUTPUT_PATH], capture_output=True, text=True, cwd=MXLRC_PATH)
+    if os.path.exists(os.path.join(OUTPUT_PATH, output_file_name)):
+        return output_file_name
+    return None
 
 
-parsed_file = parse_lrc_file('Katy Perry - Roar.lrc')
-animation_prompts = transform_lyrics_to_prompt(parsed_file['author'], parsed_file['title'], parsed_file['lyrics'], 10)
-strength_schedule = strength_schedule_generation(animation_prompts)
-print(animation_prompts)
-print(strength_schedule)
+
+# parsed_file = parse_lrc_file('Katy Perry - Roar.lrc')
+# animation_prompts = transform_lyrics_to_prompt(parsed_file['author'], parsed_file['title'], parsed_file['lyrics'], 10)
+# strength_schedule = strength_schedule_generation(animation_prompts)
+# print(animation_prompts)
+# print(strength_schedule)
+download_lrc("Drake", "God's Plan")
