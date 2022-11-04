@@ -53,6 +53,7 @@ def download_file():
     # response = make_response("download!", 200)
     # return response  
 
+# Testing only, to be deleted
 @app.route('/download_test/<filename>', methods = ['GET', 'POST'])
 def download_test_file(filename):
     downloads = os.path.join(current_app.root_path, "DeforumStableDiffusionLocal", "output", "2022-11", "test")
