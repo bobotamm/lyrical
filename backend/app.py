@@ -8,6 +8,9 @@ import subprocess
 from flask_cors import CORS, cross_origin
 from dotenv import load_dotenv
 import MySQLdb
+from song_recognization import recognize
+import prompt_generation
+import logging
 
 def make_celery(app):
     celery = Celery(
@@ -34,11 +37,13 @@ app.config.update(
 )
 celery = make_celery(app)
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 
 SUCCESS = {"result":True}
 FAILURE = {"result":False}
 ALLOWED_AUDIO_EXTENSIONS = {'mp3', 'wav'}
+AUDIO_INPUT_DIRECTORY = os.path.join(os.getcwd(), "input", "audios")
 
 # Check if audio file extention is supported
 def allowed_file(filename):
@@ -91,8 +96,6 @@ def login():
 # Display
 @app.route('/display', methods = ['POST'])
 def display():
-    print(request.data)
-    print(request)
     requestData = json.loads(request.data)
     user_id = requestData['user_id']
     print("User id", user_id)
@@ -120,28 +123,31 @@ def upload_file():
         return jsonify(FAILURE)
 
     # Save the audio file
-    target_directory = os.path.join(current_app.root_path, "audios", str(user_id))
+    target_directory = os.path.join(AUDIO_INPUT_DIRECTORY, str(user_id))
     if not os.path.exists(target_directory):
         os.makedirs(target_directory)
     ending = 1
     file_name_raw, file_name_extention = file.filename.split(".")
-    while os.path.exists(os.path.join(current_app.root_path, "audios", str(user_id), file_name_raw+'_'+str(ending)+"."+file_name_extention)):
+    while os.path.exists(os.path.join(AUDIO_INPUT_DIRECTORY, str(user_id), file_name_raw+'_'+str(ending)+"."+file_name_extention)):
         ending += 1
     file_name = file_name_raw+'_'+str(ending)+"."+file_name_extention
-    with open(os.path.join(current_app.root_path, "audios", str(user_id), file_name), 'wb') as f:
+    with open(os.path.join(AUDIO_INPUT_DIRECTORY, str(user_id), file_name), 'wb') as f:
         file.save(f)
     
     # Insert into Database
+    audio_id = None
     try:
         db = connect_to_db()
         cursor = db.cursor()
         cursor.execute(f"INSERT INTO audio_input(audio_file_name, status, user_id) VALUES (%s, %s, %s); ", (file_name, 0, int(user_id)))
         db.commit()
+        audio_id = cursor.lastrowid
         db.close()
     except:
         return jsonify(FAILURE)
 
     # Initiate a task
+    video_generation.delay(user_id, file_name, audio_id)
 
     response = jsonify(SUCCESS)
     return response
@@ -165,10 +171,10 @@ def download_test_file(filename):
 def home():
     return make_response("Hello World!", 200)
 
-@app.route('/test_celery')
-def test_celery():
-    test_celery_c.delay()
-    return redirect(url_for("home"))
+# @app.route('/test_celery')
+# def test_celery():
+#     test_celery_c.delay()
+#     return redirect(url_for("home"))
 
 
 @app.route('/generate', methods = ['GET', 'POST'])
@@ -179,15 +185,58 @@ def generate_video():
     return response
 
 @celery.task()
-def test_celery_c():
-    print("Testing Start")
-    with open('log.log', 'w') as f:
-        f.write('Working!' + str(time.time()))
-    exit_code = subprocess.run(["python", "run.py", "--enable_animation_mode", "--settings", "runSettings_Template.txt"], capture_output=True, text=True, cwd="./DeforumStableDiffusionLocal/")
-    with open('log.log', 'w') as f:
-        f.write('Complete')
-        f.write(str(exit_code.returncode))
-        f.write(str(exit_code.stdout))
+def video_generation(user_id, file_name, audio_id):
+    # Find the author and title
+    recognize_result = recognize(os.path.join(AUDIO_INPUT_DIRECTORY, str(user_id), file_name), os.getenv("AUDD_API_TOKEN")).json()
+    if recognize_result['status'] != "success":
+        logger.error("Recognize Failed", recognize_result)
+        return
+    author = recognize_result['result']['artist']
+    title = recognize_result['result']['title']
+
+    # Download the lyrics
+    lyrics_file_dir = os.path.join(prompt_generation.LYRICS_PATH, str(user_id))
+    if not os.path.exists(lyrics_file_dir):
+        os.makedirs(lyrics_file_dir)
+    subprocess.run(["python", "mxlrc.py", "--song", author+ "," +title, "--out", lyrics_file_dir], capture_output=True, text=True, cwd="./MxLRC")
+    lyrics_file_name = author + " - " + title + ".lrc"
+    if not os.path.exists(os.path.join(lyrics_file_dir, lyrics_file_name)):
+        logger.error("Download Lyrics Failed")
+        return
+    
+    # Update DB
+    lyric_id = None
+    try:
+        db = connect_to_db()
+        cursor = db.cursor()
+        cursor.execute(f"INSERT INTO lyric(lyric_file_name, audio_id) VALUES (%s, %s); ", (lyrics_file_name, str(audio_id)))
+        lyric_id = cursor.lastrowid
+        cursor.execute(f"UPDATE audio_input SET status = 1 WHERE audio_id = %s", [str(audio_id)])
+        db.commit()
+        db.close()
+    except:
+        logger.error("Update DB Failed")
+        return
+
+    # Generate Prompts
+    prompt_file_dir = os.path.join(prompt_generation.PROMPT_PATH, str(user_id))
+    if not os.path.exists(prompt_file_dir):
+        os.makedirs(prompt_file_dir)
+    prompt_dict = prompt_generation.generate_prompt(author, title, 10)
+    with open(os.path.join(prompt_file_dir, str(lyric_id) + ".txt"), 'w') as f:
+        json.dump(prompt_dict, f)
+    
+    # Generate Video
+    logger.info("Generating")
+
+    # print("Testing Start")
+    # with open('log.log', 'w') as f:
+    #     f.write('Working!' + str(time.time()))
+    # exit_code = subprocess.run(["python", "run.py", "--enable_animation_mode", "--settings", "runSettings_Template.txt"], capture_output=True, text=True, cwd="./DeforumStableDiffusionLocal/")
+    # with open('log.log', 'w') as f:
+    #     f.write('Complete')
+    #     f.write(str(exit_code.returncode))
+    #     f.write(str(exit_code.stdout))
   
 # Running app
 if __name__ == '__main__':

@@ -103,11 +103,5 @@ def generate_prompt(author, title, length = -1, fps = 10):
         template['max_frames'] = length * fps
     # TODO: Update batch_name
     template['batch_name'] = 'test'
-
-    prompt_file_name = author + ' - ' + title + '.txt'
-    with open(os.path.join(PROMPT_PATH, prompt_file_name), 'w') as f:
-        json.dump(template, f)
-
-
-generate_prompt("Katy Perry", "Roar", 20)
-
+    return template
+    

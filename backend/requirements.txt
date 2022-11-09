@@ -5,3 +5,4 @@ sqlalchemy
 flask_cors
 python-dotenv
 mysqlclient
+tinytag==1.0.1
