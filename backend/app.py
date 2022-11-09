@@ -38,7 +38,7 @@ app.config.update(
 celery = make_celery(app)
 load_dotenv()
 logger = logging.getLogger(__name__)
-
+db = connect_to_db()
 
 SUCCESS = {"result":True}
 FAILURE = {"result":False}
