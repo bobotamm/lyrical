@@ -7,7 +7,7 @@ import json
 import subprocess
 from flask_cors import CORS, cross_origin
 from dotenv import load_dotenv
-import MySQLdb
+import pymysql
 from song_recognization import recognize
 import prompt_generation
 import logging
@@ -51,7 +51,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_AUDIO_EXTENSIONS
 
 def connect_to_db():
-    db = MySQLdb.connect(
+    db = pymysql.connect(
         host="localhost",
         database="lyrical",
         user="root",
