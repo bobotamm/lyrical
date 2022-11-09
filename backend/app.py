@@ -6,6 +6,8 @@ import requests
 import json
 import subprocess
 from flask_cors import CORS, cross_origin
+from dotenv import load_dotenv
+import pymysql
 
 def make_celery(app):
     celery = Celery(
@@ -31,7 +33,56 @@ app.config.update(
     CELERY_BACKEND_URL="db+sqlite:///test.db",
 )
 celery = make_celery(app)
-DONE = {"result":True}
+load_dotenv()
+db = pymysql.connect(
+        host="localhost",
+        database="lyrical",
+        user="root",
+        password=os.getenv("DB_PASSWORD")
+)
+print("DB connected!")
+
+SUCCESS = {"result":True}
+FAILURE = {"result":False}
+
+# Register
+@app.route('/register', methods = ['POST'])
+def register():
+    requestData = json.loads(request.data)
+    username = requestData['username']
+    password = requestData['password']
+    try:
+        cursor = db.cursor()
+        cursor.execute(f"INSERT INTO user(user_name, user_password) VALUES (%s, %s); ", (str(username), str(password)))
+        db.commit()
+        response = SUCCESS.copy()
+        response['id'] = cursor.lastrowid
+        return jsonify(response)
+    except:
+        return jsonify(FAILURE)
+
+# Login
+@app.route('/login', methods = ['POST'])
+def login():
+    requestData = json.loads(request.data)
+    username = requestData['username']
+    password = requestData['password']
+    cursor = db.cursor()
+    cursor.execute(f"SELECT user_id FROM user WHERE user_name = %s AND user_password = %s;", (str(username), str(password)))
+    db_res = cursor.fetchall()
+    if len(db_res) > 0:
+        response = SUCCESS.copy()
+        response['id'] = db_res[0][0]
+        return jsonify(response)
+    else:
+        return jsonify(FAILURE)
+# Display
+@app.route('/display', methods = ['POST'])
+def display():
+    requestData = json.loads(request.data)
+    user_id = requestData['user_id']
+    return jsonify(SUCCESS)
+
 
 # Route for seeing a data
 @app.route('/upload', methods = ['GET', 'POST'])
@@ -40,7 +91,7 @@ def upload_file():
     print(file.mimetype)
     with open('test.jpeg', 'wb') as f:
         file.save(f)
-    response = jsonify(DONE)
+    response = jsonify(SUCCESS)
     response.headers.add("Access-Control-Allow-Origin","*")
     return response
 

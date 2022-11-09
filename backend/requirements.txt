@@ -3,3 +3,5 @@ requests
 celery
 sqlalchemy
 flask_cors
+python-dotenv
+pymysql
