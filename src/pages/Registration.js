@@ -7,7 +7,7 @@ const Registration = () => {
   
     const userRegistration = async () => {
         console.log(username, password);
-        const response = await fetch("http://127.0.0.1:5000/register", {
+        const response = await fetch("http://0.0.0.0:5000/register", {
         method: "POST",
         headers: { "Access-Control-Allow-Origin": "*" },
         body: JSON.stringify({"username":username, "password":password})}).then(
