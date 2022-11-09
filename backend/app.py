@@ -99,7 +99,7 @@ def display():
     requestData = json.loads(request.data)
     user_id = requestData['user_id']
     print("User id", user_id)
-    db = MySQLdb.connect(
+    db = pymysql.connect(
         host="localhost",
         database="lyrical",
         user="root",
