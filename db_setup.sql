@@ -2,7 +2,7 @@ DROP DATABASE IF EXISTS lyrical;
 CREATE DATABASE IF NOT EXISTS lyrical;
 
 USE lyrical;
-
+DROP TABLE IF EXISTS user;
 CREATE TABLE IF NOT EXISTS user (
     user_id         INT         NOT NULL    AUTO_INCREMENT,
     user_name	    VARCHAR(32) NOT NULL UNIQUE,
@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS user (
     PRIMARY KEY (user_id)
 );
 
+DROP TABLE IF EXISTS audio_input;
 CREATE TABLE IF NOT EXISTS audio_input (
     audio_id	    INT             NOT NULL    AUTO_INCREMENT,
     audio_file_name	VARCHAR(128)    NOT NULL,
@@ -20,6 +21,7 @@ CREATE TABLE IF NOT EXISTS audio_input (
     PRIMARY KEY (audio_id)
 );
 
+DROP TABLE IF EXISTS music_video;
 CREATE TABLE IF NOT EXISTS music_video (
     music_video_id	        INT             NOT NULL    AUTO_INCREMENT,
     music_video_file_name	VARCHAR(128)    NOT NULL,

@@ -1,10 +1,13 @@
 import './Homepage.css'
 import Cookies from 'universal-cookie';
 import GenerateVideo from "./GenerateVideo"
-import Display from "./Display"
+import DisplayAudios from './DisplayAudios';
 
 import React, { Component, useState, useEffect } from 'react';
-
+import { getCookieUserId, getCookieUsername } from './CookieUtils';
+import {QueryClient, QueryClientProvider} from 'react-query'
+import { checkLoggedIn, welcomePage } from './Welcome';
+const queryClient = new QueryClient();
 class Homepage extends Component {
 
   state = {
@@ -31,6 +34,7 @@ class Homepage extends Component {
       this.state.selectedFile,
       this.state.selectedFile.name
     );
+    formData.append("user_id", getCookieUserId());
 
     // Details of the uploaded file
     console.log(this.state.selectedFile);
@@ -38,12 +42,20 @@ class Homepage extends Component {
     fetch('http://localhost:5000/upload', {
       method: 'POST',
       body: formData,
-    }).then((response) => {
-      response.json().then((body) => {
-        console.log("hehee")
-        this.setState({ selectedFile: formData });
-      });
-    });
+    }).then(res => res.json()).then(responseData => {
+        if (responseData['result'] == true) {
+            window.location.href = "/home"
+        } else {
+            alert("Upload Failed!");
+        }
+    }).catch(error => {
+        alert(error);
+    })
+    // .then((response) => {
+    //   response.json().then((body) => {
+    //     this.setState({ selectedFile: formData });
+    //   });
+    // });
 
   };
 
@@ -63,7 +75,6 @@ class Homepage extends Component {
     } else {
       return (
         <div>
-          <br />
           <h4>Choose before pressing the upload button</h4>
         </div>
       );
@@ -74,54 +85,7 @@ class Homepage extends Component {
 
   }
 
-  getDownloadFile = async () => {
-    // console.log("download")
-    // const response = await fetch("http://127.0.0.1:5000/download", {
-    //   method: "POST",
-    //   headers: { "Access-Control-Allow-Origin": "*" }
-    // })
-
-    // ;
-    // if (response.ok) {
-    //   console.log("it worked!");
-    // }
-    let headers = new Headers();
-
-    headers.append('Access-Control-Allow-Origin', "*");
-    headers.append('Access-Control-Allow-Credentials', 'true');
-    headers.append('Content-Type', 'application/octet-stream');
-    headers.append('Accept', 'application/json');
-    headers.append('Access-Control-Allow-Methods', "OPTIONS, POST, GET")
-
-    fetch('http://localhost:5000/download', {
-      method: 'POST',
-      headers: headers,
-    })
-      .then((response) => response.blob())
-      .then((blob) => {
-        console.log(blob)
-        // Create blob link to download
-        const url = window.URL.createObjectURL(
-          new Blob([blob]),
-        );
-        console.log(url)
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute(
-          'download',
-          `downloadFile.jpeg`,
-        );
-
-        // Append to html link element page
-        document.body.appendChild(link);
-
-        // Start download
-        link.click();
-
-        // Clean up and remove the link
-        link.parentNode.removeChild(link);
-      });
-  }
+  
 
   onGenerate = async () => {
     const response = await fetch("http://127.0.0.1:5000/generate", {
@@ -134,12 +98,15 @@ class Homepage extends Component {
   };
 
   render() {
-    
+    const username = getCookieUsername();
+    if (username == null) {
+      window.location.href = "/"
+    }
     return (
       <div>
-
+        {checkLoggedIn()}
         <h3>
-          Upload your video here!
+          Upload your song here!
         </h3>
 
         <div>
@@ -148,17 +115,9 @@ class Homepage extends Component {
             Upload!
           </button>
         </div>
-
         {this.fileData()}
-        <GenerateVideo />
-
-        <div>
-          <button onClick={() => { this.getDownloadFile() }}>
-            Download Video
-          </button>
-        </div> 
-
-        <Display />
+        {/* <GenerateVideo /> */}
+        <QueryClientProvider client={queryClient} contextSharing={true}><DisplayAudios /></QueryClientProvider>
       </div>
     );
   }

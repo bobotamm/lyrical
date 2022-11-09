@@ -1,15 +1,22 @@
-import { getCookieUsername } from "./CookieUtils";
+import { getCookieUsername, logOut } from "./CookieUtils";
 
 const checkLoggedIn = () => {
     const username = getCookieUsername();
     if (username == null) {
         return (<div>Please <a href='/login'>Login</a> or <a href='/registration'>Register</a></div>)
     } else {
-        return (<div>Welcome {username}! Start your journey from our <a href='/home'>Home Page</a></div>)
+        return (<div>
+                    <div>
+                        Welcome {username}! Start your journey from our <a href='/home'>Home Page</a>
+                    </div>
+                    <div>
+                        <button onClick={logOut}>Log Out</button>
+                    </div>
+                </div>)
     }
 }
 
-const GenerateButton = () => {
+const welcomePage = () => {
     return (
         <div>
             Welcome to LyricAl! We are ....
@@ -19,4 +26,4 @@ const GenerateButton = () => {
 
 }
 
-export default GenerateButton; 
+export {welcomePage, checkLoggedIn}; 

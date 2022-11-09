@@ -5,6 +5,12 @@ export function getCookieUsername(){
     return cookies.get("lyrical_username")
 }
 
+export function getCookieUserId(){
+    const cookies = new Cookies();
+    return cookies.get("lyrical_id")
+}
+
+
 export function setUsernameId(username, id){
     const cookies = new Cookies();
     cookies.set('lyrical_username', username, { path: '/' });

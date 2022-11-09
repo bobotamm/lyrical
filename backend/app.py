@@ -7,7 +7,7 @@ import json
 import subprocess
 from flask_cors import CORS, cross_origin
 from dotenv import load_dotenv
-import pymysql
+import MySQLdb
 
 def make_celery(app):
     celery = Celery(
@@ -34,16 +34,25 @@ app.config.update(
 )
 celery = make_celery(app)
 load_dotenv()
-db = pymysql.connect(
+
+
+SUCCESS = {"result":True}
+FAILURE = {"result":False}
+ALLOWED_AUDIO_EXTENSIONS = {'mp3', 'wav'}
+
+# Check if audio file extention is supported
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_AUDIO_EXTENSIONS
+
+def connect_to_db():
+    db = MySQLdb.connect(
         host="localhost",
         database="lyrical",
         user="root",
         password=os.getenv("DB_PASSWORD")
-)
-print("DB connected!")
-
-SUCCESS = {"result":True}
-FAILURE = {"result":False}
+    )
+    return db
 
 # Register
 @app.route('/register', methods = ['POST'])
@@ -52,9 +61,11 @@ def register():
     username = requestData['username']
     password = requestData['password']
     try:
+        db = connect_to_db()
         cursor = db.cursor()
         cursor.execute(f"INSERT INTO user(user_name, user_password) VALUES (%s, %s); ", (str(username), str(password)))
         db.commit()
+        db.close()
         response = SUCCESS.copy()
         response['id'] = cursor.lastrowid
         return jsonify(response)
@@ -67,7 +78,7 @@ def login():
     requestData = json.loads(request.data)
     username = requestData['username']
     password = requestData['password']
-    cursor = db.cursor()
+    cursor = connect_to_db().cursor()
     cursor.execute(f"SELECT user_id FROM user WHERE user_name = %s AND user_password = %s;", (str(username), str(password)))
     db_res = cursor.fetchall()
     if len(db_res) > 0:
@@ -76,23 +87,63 @@ def login():
         return jsonify(response)
     else:
         return jsonify(FAILURE)
+
 # Display
 @app.route('/display', methods = ['POST'])
 def display():
+    print(request.data)
+    print(request)
     requestData = json.loads(request.data)
     user_id = requestData['user_id']
-    return jsonify(SUCCESS)
+    print("User id", user_id)
+    db = MySQLdb.connect(
+        host="localhost",
+        database="lyrical",
+        user="root",
+        password=os.getenv("DB_PASSWORD")
+    )
+    cursor = connect_to_db().cursor()
+    cursor.execute(f"SELECT audio_id, audio_file_name, status FROM audio_input WHERE user_id = %s;", (str(user_id)))
+    db_res = cursor.fetchall()
+    response = SUCCESS.copy()
+    response['audio_data'] = db_res
+    return jsonify(response)
 
 
 # Route for seeing a data
 @app.route('/upload', methods = ['GET', 'POST'])
 def upload_file():
     file = request.files['myFile']
-    print(file.mimetype)
-    with open('test.jpeg', 'wb') as f:
+    user_id = request.form['user_id']
+    # Prevent processing not supported files
+    if file.filename == '' or not allowed_file(file.filename):
+        return jsonify(FAILURE)
+
+    # Save the audio file
+    target_directory = os.path.join(current_app.root_path, "audios", str(user_id))
+    if not os.path.exists(target_directory):
+        os.makedirs(target_directory)
+    ending = 1
+    file_name_raw, file_name_extention = file.filename.split(".")
+    while os.path.exists(os.path.join(current_app.root_path, "audios", str(user_id), file_name_raw+'_'+str(ending)+"."+file_name_extention)):
+        ending += 1
+    file_name = file_name_raw+'_'+str(ending)+"."+file_name_extention
+    with open(os.path.join(current_app.root_path, "audios", str(user_id), file_name), 'wb') as f:
         file.save(f)
+    
+    # Insert into Database
+    try:
+        db = connect_to_db()
+        cursor = db.cursor()
+        cursor.execute(f"INSERT INTO audio_input(audio_file_name, status, user_id) VALUES (%s, %s, %s); ", (file_name, 0, int(user_id)))
+        db.commit()
+        db.close()
+    except:
+        return jsonify(FAILURE)
+
+    # Initiate a task
+
     response = jsonify(SUCCESS)
-    response.headers.add("Access-Control-Allow-Origin","*")
     return response
 
 
@@ -100,7 +151,7 @@ def upload_file():
 @app.route('/download', methods = ['GET', 'POST'])
 def download_file():
     downloads = os.path.join(current_app.root_path)
-    return send_from_directory(downloads, "test.jpeg", as_attachment=True)
+    return send_from_directory(downloads, "test.mp3", as_attachment=True)
     # response = make_response("download!", 200)
     # return response  
 
