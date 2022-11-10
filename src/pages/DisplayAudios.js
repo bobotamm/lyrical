@@ -2,11 +2,15 @@
 import React, { useEffect, useState } from "react";
 import {QueryClient, useQuery} from 'react-query'
 import { backendUrl } from "./Conf";
+import { getCookieUserId } from "./CookieUtils";
 import Download from "./Download"
 
 
 async function fetchAudioData() {
-  const userId = 1;
+  const userId = getCookieUserId();
+  if (userId == null) {
+    return null;
+  }
   console.log('Fetching Uploaded Audio Files')
   const data = await fetch(backendUrl+"/display", {
   method: "POST",
@@ -17,7 +21,7 @@ async function fetchAudioData() {
   .then((json) => {
           return json['audio_data'];
       });
-  return data
+  return data;
 };
 
 function interpretStatus(status) {
