@@ -146,41 +146,7 @@ def upload_file():
         return jsonify(FAILURE)
 
     # Initiate a task
-    # Find the author and title
-    recognize_result = recognize(str(AUDIO_INPUT_DIRECTORY / str(user_id) / file_name), os.getenv("AUDD_API_TOKEN")).json()
-    if recognize_result['status'] != "success":
-        logger.error("Recognize Failed", recognize_result)
-        return
-    author = recognize_result['result']['artist']
-    title = recognize_result['result']['title']
-
-    # Download the lyrics
-    lyrics_file_dir = LYRICS_PATH / str(user_id)
-    subprocess.run(["python", "mxlrc.py", "--song", author+ "," +title, "--out", lyrics_file_dir], capture_output=True, text=True, cwd=str(MXLRC_PATH))
-    lyrics_file_name = author + " - " + title + ".lrc"
-    if not (lyrics_file_dir / lyrics_file_name).exists():
-        logger.error("Download Lyrics Failed")
-        return
-    
-    # Update DB
-    lyric_id = None
-    try:
-        db = connect_to_db()
-        cursor = db.cursor()
-        cursor.execute(f"INSERT INTO lyric(lyric_file_name, audio_id) VALUES (%s, %s); ", (lyrics_file_name, str(audio_id)))
-        lyric_id = cursor.lastrowid
-        cursor.execute(f"UPDATE audio_input SET status = 1 WHERE audio_id = %s", [str(audio_id)])
-        db.commit()
-        db.close()
-    except:
-        logger.error("Update DB Failed")
-        return
-
-    # Generate Prompts
-    prompt_file_dir = PROMPT_PATH / str(user_id)
-    prompt_dict = prompt_generation.generate_prompt(str(lyrics_file_dir / lyrics_file_name), author, title, 10)
-    with open(str(prompt_file_dir/ (str(lyric_id) + ".txt")), 'w') as f:
-        json.dump(prompt_dict, f)
+    video_generation.delay(user_id, file_name, audio_id)
 
     response = jsonify(SUCCESS)
     return response
