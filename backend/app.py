@@ -191,7 +191,7 @@ def video_generation(user_id, file_name, audio_id):
     lyrics_file_dir = os.path.join(prompt_generation.LYRICS_PATH, str(user_id))
     if not os.path.exists(lyrics_file_dir):
         os.makedirs(lyrics_file_dir)
-    subprocess.run(["python", "mxlrc.py", "--song", author+ "," +title, "--out", lyrics_file_dir], capture_output=True, text=True, cwd="./MxLRC")
+    subprocess.run(["python", "mxlrc.py", "--song", author+ "," +title, "--out", lyrics_file_dir], capture_output=True, text=True, cwd=os.path.join(os.getcwd(), "MxLRC"))
     lyrics_file_name = author + " - " + title + ".lrc"
     if not os.path.exists(os.path.join(lyrics_file_dir, lyrics_file_name)):
         logger.error("Download Lyrics Failed")
