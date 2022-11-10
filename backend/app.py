@@ -122,6 +122,8 @@ def upload_file():
 
     # Save the audio file
     (AUDIO_INPUT_DIRECTORY / str(user_id)).mkdir(parents=True, exist_ok=True)
+    (LYRICS_PATH / str(user_id)).mkdir(parents=True, exist_ok=True)
+    (PROMPT_PATH / str(user_id)).mkdir(parents=True, exist_ok=True)
     target_directory = AUDIO_INPUT_DIRECTORY / str(user_id)
     ending = 1
     file_name_raw, file_name_extention = file.filename.split(".")
@@ -193,7 +195,6 @@ def video_generation(user_id, file_name, audio_id):
 
     # Download the lyrics
     lyrics_file_dir = LYRICS_PATH / str(user_id)
-    (LYRICS_PATH / str(user_id)).mkdir(parents=True, exist_ok=True)
     subprocess.run(["python", "mxlrc.py", "--song", author+ "," +title, "--out", lyrics_file_dir], capture_output=True, text=True, cwd=str(MXLRC_PATH))
     lyrics_file_name = author + " - " + title + ".lrc"
     if not (lyrics_file_dir / lyrics_file_name).exists():
@@ -216,7 +217,6 @@ def video_generation(user_id, file_name, audio_id):
 
     # Generate Prompts
     prompt_file_dir = PROMPT_PATH / str(user_id)
-    prompt_file_dir.mkdir(parents=True, exist_ok=True)
     prompt_dict = prompt_generation.generate_prompt(str(lyrics_file_dir / lyrics_file_name), author, title, 10)
     with open(str(prompt_file_dir/ (str(lyric_id) + ".txt")), 'w') as f:
         json.dump(prompt_dict, f)
