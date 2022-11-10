@@ -5,10 +5,6 @@ import random
 
 STRONG_STRENGTH = str(0.4)
 WEAK_STRENGTH = str(0.65)
-BACKEND_ROOT_PATH = os.getcwd()
-LYRICS_PATH = os.path.join(BACKEND_ROOT_PATH,"input","lyrics")
-MXLRC_PATH = os.path.join(BACKEND_ROOT_PATH,"MxLRC")
-PROMPT_PATH = os.path.join(BACKEND_ROOT_PATH,"input","prompts")
 
 # Transform time string to seconds in float
 def process_time(time_str):
@@ -70,26 +66,22 @@ def strength_schedule_generation(animation_prompts):
     res = ','.join([str(f[0]) + f[1] for f in str_joiner])
     return res
 
-# Download .lrc file given the author and song title. Return None if not found, else return the downloaded .lrc file name
-def download_lrc(author, title):
-    target = author + ", " + title
-    output_file_name = author + " - " + title + ".lrc"
-    subprocess.run(["python", "mxlrc.py", "--song", target, "--out", LYRICS_PATH], capture_output=True, text=True, cwd=MXLRC_PATH)
-    if os.path.exists(os.path.join(LYRICS_PATH, output_file_name)):
-        return output_file_name
-    return None
+# # Download .lrc file given the author and song title. Return None if not found, else return the downloaded .lrc file name
+# def download_lrc(author, title):
+#     target = author + ", " + title
+#     output_file_name = author + " - " + title + ".lrc"
+#     subprocess.run(["python", "mxlrc.py", "--song", target, "--out", LYRICS_PATH], capture_output=True, text=True, cwd=MXLRC_PATH)
+#     if os.path.exists(os.path.join(LYRICS_PATH, output_file_name)):
+#         return output_file_name
+#     return None
 
 # Generate prompt given author, title, and fps
-def generate_prompt(author, title, length = -1, fps = 10):
-    lrc_file_name = download_lrc(author, title)
-    if lrc_file_name is None:
-        print("Download Failed: ", author, title)
-        return
-    parsed_file = parse_lrc_file(os.path.join(LYRICS_PATH, lrc_file_name))
+def generate_prompt(lrc_file_name, author, title, length = -1, fps = 10):
+    parsed_file = parse_lrc_file(lrc_file_name)
     animation_prompts = transform_lyrics_to_prompt(author, title, parsed_file['lyrics'], fps)
     strength_schedule = strength_schedule_generation(animation_prompts)
 
-    f = open(os.path.join(PROMPT_PATH, "template.txt"))
+    f = open(os.path.join(os.getcwd(), "input", "prompts", "template.txt"))
     template = json.load(f)
     f.close()
 

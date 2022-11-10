@@ -42,7 +42,11 @@ logger = logging.getLogger(__name__)
 SUCCESS = {"result":True}
 FAILURE = {"result":False}
 ALLOWED_AUDIO_EXTENSIONS = {'mp3', 'wav'}
-AUDIO_INPUT_DIRECTORY = os.path.join(os.getcwd(), "input", "audios")
+BACKEND_ROOT_PATH = os.getcwd()
+AUDIO_INPUT_DIRECTORY = os.path.join(BACKEND_ROOT_PATH, "input", "audios")
+LYRICS_PATH = os.path.join(BACKEND_ROOT_PATH,"input","lyrics")
+MXLRC_PATH = os.path.join(BACKEND_ROOT_PATH,"MxLRC")
+PROMPT_PATH = os.path.join(BACKEND_ROOT_PATH,"input","prompts")
 
 # Check if audio file extention is supported
 def allowed_file(filename):
@@ -188,7 +192,7 @@ def video_generation(user_id, file_name, audio_id):
     title = recognize_result['result']['title']
 
     # Download the lyrics
-    lyrics_file_dir = os.path.join(prompt_generation.LYRICS_PATH, str(user_id))
+    lyrics_file_dir = os.path.join(LYRICS_PATH, str(user_id))
     if not os.path.exists(lyrics_file_dir):
         os.makedirs(lyrics_file_dir)
     subprocess.run(["python", "mxlrc.py", "--song", author+ "," +title, "--out", lyrics_file_dir], capture_output=True, text=True, cwd=os.path.join(os.getcwd(), "MxLRC"))
@@ -212,10 +216,10 @@ def video_generation(user_id, file_name, audio_id):
         return
 
     # Generate Prompts
-    prompt_file_dir = os.path.join(prompt_generation.PROMPT_PATH, str(user_id))
+    prompt_file_dir = os.path.join(PROMPT_PATH, str(user_id))
     if not os.path.exists(prompt_file_dir):
         os.makedirs(prompt_file_dir)
-    prompt_dict = prompt_generation.generate_prompt(author, title, 10)
+    prompt_dict = prompt_generation.generate_prompt(os.path.join(lyrics_file_dir, lyrics_file_name), author, title, 10)
     with open(os.path.join(prompt_file_dir, str(lyric_id) + ".txt"), 'w') as f:
         json.dump(prompt_dict, f)
     
