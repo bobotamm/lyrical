@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 SUCCESS = {"result":True}
 FAILURE = {"result":False}
 ALLOWED_AUDIO_EXTENSIONS = {'mp3', 'wav'}
-BACKEND_ROOT_PATH = os.getcwd()
+BACKEND_ROOT_PATH = os.path.dirname(__file__)
 AUDIO_INPUT_DIRECTORY = os.path.join(BACKEND_ROOT_PATH, "input", "audios")
 LYRICS_PATH = os.path.join(BACKEND_ROOT_PATH,"input","lyrics")
 MXLRC_PATH = os.path.join(BACKEND_ROOT_PATH,"MxLRC")
@@ -184,7 +184,7 @@ def generate_video():
 @celery.task()
 def video_generation(user_id, file_name, audio_id):
     # Find the author and title
-    recognize_result = recognize(os.path.join(os.getcwd(), "input", "lyrics", str(user_id), file_name), os.getenv("AUDD_API_TOKEN")).json()
+    recognize_result = recognize(os.path.join(os.path.dirname(__file__), "input", "lyrics", str(user_id), file_name), os.getenv("AUDD_API_TOKEN")).json()
     if recognize_result['status'] != "success":
         logger.error("Recognize Failed", recognize_result)
         return
@@ -192,10 +192,10 @@ def video_generation(user_id, file_name, audio_id):
     title = recognize_result['result']['title']
 
     # Download the lyrics
-    lyrics_file_dir = os.path.join(os.getcwd(), "input", "lyrics", str(user_id))
+    lyrics_file_dir = os.path.join(os.path.dirname(__file__), "input", "lyrics", str(user_id))
     if not os.path.exists(lyrics_file_dir):
         os.makedirs(lyrics_file_dir)
-    subprocess.run(["python", "mxlrc.py", "--song", author+ "," +title, "--out", lyrics_file_dir], capture_output=True, text=True, cwd=os.path.join(os.getcwd(), "MxLRC"))
+    subprocess.run(["python", "mxlrc.py", "--song", author+ "," +title, "--out", lyrics_file_dir], capture_output=True, text=True, cwd=os.path.join(os.path.dirname(__file__), "MxLRC"))
     lyrics_file_name = author + " - " + title + ".lrc"
     if not os.path.exists(os.path.join(lyrics_file_dir, lyrics_file_name)):
         logger.error("Download Lyrics Failed")
@@ -216,7 +216,7 @@ def video_generation(user_id, file_name, audio_id):
         return
 
     # Generate Prompts
-    prompt_file_dir = os.path.join(os.getcwd(), "input", "prompts", str(user_id))
+    prompt_file_dir = os.path.join(os.path.dirname(__file__), "input", "prompts", str(user_id))
     if not os.path.exists(prompt_file_dir):
         os.makedirs(prompt_file_dir)
     prompt_dict = prompt_generation.generate_prompt(os.path.join(lyrics_file_dir, lyrics_file_name), author, title, 10)
