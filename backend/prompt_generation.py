@@ -72,15 +72,6 @@ def strength_schedule_generation(animation_prompts):
     res = ','.join([str(f[0]) + f[1] for f in str_joiner])
     return res
 
-# # Download .lrc file given the author and song title. Return None if not found, else return the downloaded .lrc file name
-# def download_lrc(author, title):
-#     target = author + ", " + title
-#     output_file_name = author + " - " + title + ".lrc"
-#     subprocess.run(["python", "mxlrc.py", "--song", target, "--out", LYRICS_PATH], capture_output=True, text=True, cwd=MXLRC_PATH)
-#     if os.path.exists(os.path.join(LYRICS_PATH, output_file_name)):
-#         return output_file_name
-#     return None
-
 # Generate prompt given author, title, and fps
 def generate_prompt(lrc_file_name, author, title, length = -1, fps = 10):
     parsed_file = parse_lrc_file(lrc_file_name)
