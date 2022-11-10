@@ -125,7 +125,7 @@ def upload_file():
     target_directory = AUDIO_INPUT_DIRECTORY / str(user_id)
     ending = 1
     file_name_raw, file_name_extention = file.filename.split(".")
-    while (target_directory / file_name_raw+'_'+str(ending)+"."+file_name_extention).exists():
+    while (target_directory / (file_name_raw+'_'+str(ending)+"."+file_name_extention)).exists():
         ending += 1
     file_name = file_name_raw+'_'+str(ending)+"."+file_name_extention
     with open(str(target_directory / file_name), 'wb') as f:
