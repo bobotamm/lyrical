@@ -11,6 +11,7 @@ import pymysql
 from song_recognization import recognize
 import prompt_generation
 import logging
+from pathlib import Path
 
 def make_celery(app):
     celery = Celery(
@@ -42,11 +43,11 @@ logger = logging.getLogger(__name__)
 SUCCESS = {"result":True}
 FAILURE = {"result":False}
 ALLOWED_AUDIO_EXTENSIONS = {'mp3', 'wav'}
-BACKEND_ROOT_PATH = os.path.dirname(__file__)
-AUDIO_INPUT_DIRECTORY = os.path.join(BACKEND_ROOT_PATH, "input", "audios")
-LYRICS_PATH = os.path.join(BACKEND_ROOT_PATH,"input","lyrics")
-MXLRC_PATH = os.path.join(BACKEND_ROOT_PATH,"MxLRC")
-PROMPT_PATH = os.path.join(BACKEND_ROOT_PATH,"input","prompts")
+BACKEND_ROOT_PATH = Path.cwd()
+AUDIO_INPUT_DIRECTORY = BACKEND_ROOT_PATH / "input" / "audios"
+LYRICS_PATH = BACKEND_ROOT_PATH / "input" / "lyrics"
+MXLRC_PATH = BACKEND_ROOT_PATH / "MxLRC"
+PROMPT_PATH = BACKEND_ROOT_PATH / "input" / "prompts"
 
 # Check if audio file extention is supported
 def allowed_file(filename):
@@ -120,15 +121,14 @@ def upload_file():
         return jsonify(FAILURE)
 
     # Save the audio file
-    target_directory = os.path.join(AUDIO_INPUT_DIRECTORY, str(user_id))
-    if not os.path.exists(target_directory):
-        os.makedirs(target_directory)
+    (AUDIO_INPUT_DIRECTORY / str(user_id)).mkdir(parents=True, exist_ok=True)
+    target_directory = AUDIO_INPUT_DIRECTORY / str(user_id)
     ending = 1
     file_name_raw, file_name_extention = file.filename.split(".")
-    while os.path.exists(os.path.join(AUDIO_INPUT_DIRECTORY, str(user_id), file_name_raw+'_'+str(ending)+"."+file_name_extention)):
+    while (target_directory / file_name_raw+'_'+str(ending)+"."+file_name_extention).exists():
         ending += 1
     file_name = file_name_raw+'_'+str(ending)+"."+file_name_extention
-    with open(os.path.join(AUDIO_INPUT_DIRECTORY, str(user_id), file_name), 'wb') as f:
+    with open(str(target_directory / file_name), 'wb') as f:
         file.save(f)
     
     # Insert into Database
@@ -184,7 +184,7 @@ def generate_video():
 @celery.task()
 def video_generation(user_id, file_name, audio_id):
     # Find the author and title
-    recognize_result = recognize(os.path.join(os.path.dirname(__file__), "input", "lyrics", str(user_id), file_name), os.getenv("AUDD_API_TOKEN")).json()
+    recognize_result = recognize(str(AUDIO_INPUT_DIRECTORY / str(user_id) / file_name), os.getenv("AUDD_API_TOKEN")).json()
     if recognize_result['status'] != "success":
         logger.error("Recognize Failed", recognize_result)
         return
@@ -192,12 +192,11 @@ def video_generation(user_id, file_name, audio_id):
     title = recognize_result['result']['title']
 
     # Download the lyrics
-    lyrics_file_dir = os.path.join(os.path.dirname(__file__), "input", "lyrics", str(user_id))
-    if not os.path.exists(lyrics_file_dir):
-        os.makedirs(lyrics_file_dir)
-    subprocess.run(["python", "mxlrc.py", "--song", author+ "," +title, "--out", lyrics_file_dir], capture_output=True, text=True, cwd=os.path.join(os.path.dirname(__file__), "MxLRC"))
+    lyrics_file_dir = LYRICS_PATH / str(user_id)
+    (LYRICS_PATH / str(user_id)).mkdir(parents=True, exist_ok=True)
+    subprocess.run(["python", "mxlrc.py", "--song", author+ "," +title, "--out", lyrics_file_dir], capture_output=True, text=True, cwd=str(MXLRC_PATH))
     lyrics_file_name = author + " - " + title + ".lrc"
-    if not os.path.exists(os.path.join(lyrics_file_dir, lyrics_file_name)):
+    if not (lyrics_file_dir / lyrics_file_name).exists():
         logger.error("Download Lyrics Failed")
         return
     
@@ -216,11 +215,10 @@ def video_generation(user_id, file_name, audio_id):
         return
 
     # Generate Prompts
-    prompt_file_dir = os.path.join(os.path.dirname(__file__), "input", "prompts", str(user_id))
-    if not os.path.exists(prompt_file_dir):
-        os.makedirs(prompt_file_dir)
-    prompt_dict = prompt_generation.generate_prompt(os.path.join(lyrics_file_dir, lyrics_file_name), author, title, 10)
-    with open(os.path.join(prompt_file_dir, str(lyric_id) + ".txt"), 'w') as f:
+    prompt_file_dir = PROMPT_PATH / str(user_id)
+    prompt_file_dir.mkdir(parents=True, exist_ok=True)
+    prompt_dict = prompt_generation.generate_prompt(str(lyrics_file_dir / lyrics_file_name), author, title, 10)
+    with open(str(prompt_file_dir/ (str(lyric_id) + ".txt")), 'w') as f:
         json.dump(prompt_dict, f)
     
     # Generate Video
