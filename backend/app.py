@@ -124,6 +124,7 @@ def upload_file():
     (AUDIO_INPUT_DIRECTORY / str(user_id)).mkdir(parents=True, exist_ok=True)
     (LYRICS_PATH / str(user_id)).mkdir(parents=True, exist_ok=True)
     (PROMPT_PATH / str(user_id)).mkdir(parents=True, exist_ok=True)
+    print(str(AUDIO_INPUT_DIRECTORY / str(user_id)), str(LYRICS_PATH / str(user_id)), str(PROMPT_PATH / str(user_id)))
     target_directory = AUDIO_INPUT_DIRECTORY / str(user_id)
     ending = 1
     file_name_raw, file_name_extention = file.filename.split(".")
