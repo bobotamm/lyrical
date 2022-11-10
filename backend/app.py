@@ -57,7 +57,7 @@ def connect_to_db():
         password=os.getenv("DB_PASSWORD")
     )
     return db
-print(os.getenv("DB_PASSWORD"))
+print("Password is ", os.getenv("DB_PASSWORD", os.getenv("DB_USER")))
 db = connect_to_db()
 # Register
 @app.route('/register', methods = ['POST'])
