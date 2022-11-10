@@ -98,12 +98,6 @@ def display():
     requestData = json.loads(request.data)
     user_id = requestData['user_id']
     print("User id", user_id)
-    db = pymysql.connect(
-        host="localhost",
-        database="lyrical",
-        user="root",
-        password=os.getenv("DB_PASSWORD")
-    )
     cursor = connect_to_db().cursor()
     cursor.execute(f"SELECT audio_id, audio_file_name, status FROM audio_input WHERE user_id = %s;", (str(user_id)))
     db_res = cursor.fetchall()

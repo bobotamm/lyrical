@@ -6,9 +6,9 @@ import random
 STRONG_STRENGTH = str(0.4)
 WEAK_STRENGTH = str(0.65)
 BACKEND_ROOT_PATH = os.getcwd()
-LYRICS_PATH = BACKEND_ROOT_PATH + "\input\lyrics"
-MXLRC_PATH = BACKEND_ROOT_PATH + "\MxLRC"
-PROMPT_PATH = BACKEND_ROOT_PATH + "\input\prompts"
+LYRICS_PATH = os.path.join(BACKEND_ROOT_PATH,"input","lyrics")
+MXLRC_PATH = os.path.join(BACKEND_ROOT_PATH,"MxLRC")
+PROMPT_PATH = os.path.join(BACKEND_ROOT_PATH,"input","prompts")
 
 # Transform time string to seconds in float
 def process_time(time_str):
