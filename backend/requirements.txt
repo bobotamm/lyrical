@@ -4,5 +4,5 @@ celery
 sqlalchemy
 flask_cors
 python-dotenv
-python3-mysqldb
+pymysql
 tinytag==1.0.1
