@@ -7,6 +7,7 @@ import React, { Component, useState, useEffect } from 'react';
 import { getCookieUserId, getCookieUsername } from './CookieUtils';
 import {QueryClient, QueryClientProvider} from 'react-query'
 import { checkLoggedIn, welcomePage } from './Welcome';
+import { backendUrl } from './Conf';
 const queryClient = new QueryClient();
 class Homepage extends Component {
 
@@ -39,7 +40,7 @@ class Homepage extends Component {
     // Details of the uploaded file
     console.log(this.state.selectedFile);
 
-    fetch('http://localhost:5000/upload', {
+    fetch(backendUrl+'/upload', {
       method: 'POST',
       body: formData,
     }).then(res => res.json()).then(responseData => {
@@ -88,7 +89,7 @@ class Homepage extends Component {
   
 
   onGenerate = async () => {
-    const response = await fetch("http://127.0.0.1:5000/generate", {
+    const response = await fetch(backendUrl+"/generate", {
       method: "POST",
       headers: { "Access-Control-Allow-Origin": "*" }
     });

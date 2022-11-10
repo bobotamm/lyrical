@@ -1,3 +1,5 @@
+import { backendUrl } from "./Conf";
+
 function Download(audioId) {
     const getDownloadFile = async () => {
         let headers = new Headers();
@@ -8,7 +10,7 @@ function Download(audioId) {
         headers.append('Accept', 'application/json');
         headers.append('Access-Control-Allow-Methods', "OPTIONS, POST, GET")
         // TODO: Add particular audio id to download
-        fetch('http://localhost:5000/download', {
+        fetch(backendUrl+'/download', {
           method: 'POST',
           headers: headers,
         })

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { backendUrl } from './Conf';
 import { setUsernameId } from './CookieUtils';
 
 const Login = () => {
@@ -7,7 +8,7 @@ const Login = () => {
   
     const userLogin = async () => {
         console.log(username, password);
-        const response = await fetch("http://127.0.0.1:5000/login", {
+        const response = await fetch(backendUrl+"/login", {
             method: "POST",
             headers: { "Access-Control-Allow-Origin": "*" },
             body: JSON.stringify({"username":username, "password":password})

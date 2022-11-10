@@ -1,13 +1,14 @@
 
 import React, { useEffect, useState } from "react";
 import {QueryClient, useQuery} from 'react-query'
+import { backendUrl } from "./Conf";
 import Download from "./Download"
 
 
 async function fetchAudioData() {
   const userId = 1;
   console.log('Fetching Uploaded Audio Files')
-  const data = await fetch("http://127.0.0.1:5000/display", {
+  const data = await fetch(backendUrl+"/display", {
   method: "POST",
   headers: { "Access-Control-Allow-Origin": "*" },
   body: JSON.stringify({"user_id": userId})

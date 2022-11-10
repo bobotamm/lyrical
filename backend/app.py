@@ -53,11 +53,10 @@ def connect_to_db():
     db = pymysql.connect(
         host="localhost",
         database="lyrical",
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD")
+        user=os.getenv("MYSQL_USER"),
+        password=os.getenv("MYSQL_PASSWORD")
     )
     return db
-print("Password is ", os.getenv("DB_PASSWORD", os.getenv("DB_USER")))
 db = connect_to_db()
 # Register
 @app.route('/register', methods = ['POST'])
