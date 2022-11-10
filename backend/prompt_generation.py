@@ -2,9 +2,15 @@ import subprocess
 import os
 import json
 import random
+from pathlib import Path
 
 STRONG_STRENGTH = str(0.4)
 WEAK_STRENGTH = str(0.65)
+BACKEND_ROOT_PATH = Path.cwd()
+AUDIO_INPUT_DIRECTORY = BACKEND_ROOT_PATH / "input" / "audios"
+LYRICS_PATH = BACKEND_ROOT_PATH / "input" / "lyrics"
+MXLRC_PATH = BACKEND_ROOT_PATH / "MxLRC"
+PROMPT_PATH = BACKEND_ROOT_PATH / "input" / "prompts"
 
 # Transform time string to seconds in float
 def process_time(time_str):
@@ -81,7 +87,7 @@ def generate_prompt(lrc_file_name, author, title, length = -1, fps = 10):
     animation_prompts = transform_lyrics_to_prompt(author, title, parsed_file['lyrics'], fps)
     strength_schedule = strength_schedule_generation(animation_prompts)
 
-    f = open(os.path.join(os.getcwd(), "input", "prompts", "template.txt"))
+    f = open(str(PROMPT_PATH / "template.txt"))
     template = json.load(f)
     f.close()
 
