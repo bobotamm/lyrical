@@ -219,7 +219,7 @@ def video_generation(user_id, file_name, audio_id):
 
     # Generate Prompts
     prompt_file_dir = PROMPT_PATH / str(user_id)
-    prompt_dict = prompt_generation.generate_prompt(user_id, audio_id, str(lyrics_file_dir / lyrics_file_name), author, title, 1, FPS)
+    prompt_dict = prompt_generation.generate_prompt(user_id, audio_id, str(lyrics_file_dir / lyrics_file_name), author, title, 10, FPS)
     max_frames = prompt_dict['max_frames']
     with open(str(prompt_file_dir/ (str(lyric_id) + ".txt")), 'w') as f:
         json.dump(prompt_dict, f)
