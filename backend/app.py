@@ -230,7 +230,7 @@ def video_generation(user_id, file_name, audio_id):
 
     # Generate Images
     with open("celery_log.log", "a") as f:
-        f.write("Generating for" + str(lyric_id))
+        f.write("\nGenerating for" + str(lyric_id) + str(max_frames))
     logging.info("Generating for" + str(lyric_id))
     exit_code = subprocess.run(["python", "run.py", "--enable_animation_mode", "--settings", str(prompt_file_dir/ (str(lyric_id) + ".txt"))], capture_output=True, text=True, cwd=str(BACKEND_ROOT_PATH / "DeforumStableDiffusionLocal"))
     logging.info("Generation Ends!")
