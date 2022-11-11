@@ -10,6 +10,7 @@ export function Download(userId, audioId) {
         headers.append('Accept', 'application/json');
         headers.append('Access-Control-Allow-Methods', "OPTIONS, POST, GET")
         // TODO: Add particular audio id to download
+        console.log("Downloading ", userId, audioId)
         fetch(backendUrl+'/download', {
           method: 'POST',
           headers: headers,
