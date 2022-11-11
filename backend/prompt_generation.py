@@ -73,7 +73,7 @@ def strength_schedule_generation(animation_prompts):
     return res
 
 # Generate prompt given author, title, and fps
-def generate_prompt(lrc_file_name, author, title, length = -1, fps = 10):
+def generate_prompt(user_id, audio_id, lrc_file_name, author, title, length = -1, fps = 10):
     parsed_file = parse_lrc_file(lrc_file_name)
     animation_prompts = transform_lyrics_to_prompt(author, title, parsed_file['lyrics'], fps)
     strength_schedule = strength_schedule_generation(animation_prompts)
@@ -86,11 +86,11 @@ def generate_prompt(lrc_file_name, author, title, length = -1, fps = 10):
     template['seed'] = seed
     template['animation_prompts'] = animation_prompts
     template['strength_schedule'] = strength_schedule
+    # Set batch_name as userId_audioId so that it can be found easily in the future
+    template['batch_name'] = str(user_id) + "_" + str(audio_id)
     if length == -1:
         template['max_frames'] = int(parsed_file['length']) * fps
     else:
         template['max_frames'] = length * fps
-    # TODO: Update batch_name
-    template['batch_name'] = 'test'
     return template
     

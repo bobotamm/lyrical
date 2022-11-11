@@ -38,7 +38,7 @@ app.config.update(
 )
 celery = make_celery(app)
 load_dotenv()
-logger = logging.getLogger(__name__)
+logging.basicConfig(filename='backend.log', level=logging.DEBUG)
 
 SUCCESS = {"result":True}
 FAILURE = {"result":False}
@@ -62,7 +62,7 @@ def connect_to_db():
         password=os.getenv("MYSQL_PASSWORD")
     )
     return db
-db = connect_to_db()
+# db = connect_to_db()
 # Register
 @app.route('/register', methods = ['POST'])
 def register():
@@ -168,13 +168,8 @@ def download_test_file(filename):
 
 @app.route('/')
 def home():
+    logging.info("Testing Logger INFO")
     return make_response("Hello World!", 200)
-
-# @app.route('/test_celery')
-# def test_celery():
-#     test_celery_c.delay()
-#     return redirect(url_for("home"))
-
 
 @app.route('/generate', methods = ['GET', 'POST'])
 @cross_origin(origin="*", headers = ['Content-Type', 'Authorization'])
@@ -188,7 +183,7 @@ def video_generation(user_id, file_name, audio_id):
     # Find the author and title
     recognize_result = recognize(str(AUDIO_INPUT_DIRECTORY / str(user_id) / file_name), os.getenv("AUDD_API_TOKEN")).json()
     if recognize_result['status'] != "success":
-        logger.error("Recognize Failed", recognize_result)
+        logging.error("Recognize Failed", recognize_result)
         return
     author = recognize_result['result']['artist']
     title = recognize_result['result']['title']
@@ -198,7 +193,7 @@ def video_generation(user_id, file_name, audio_id):
     subprocess.run(["python", "mxlrc.py", "--song", author+ "," +title, "--out", lyrics_file_dir], capture_output=True, text=True, cwd=str(MXLRC_PATH))
     lyrics_file_name = author + " - " + title + ".lrc"
     if not (lyrics_file_dir / lyrics_file_name).exists():
-        logger.error("Download Lyrics Failed")
+        logging.error("Download Lyrics Failed")
         return
     
     # Update DB
@@ -212,26 +207,30 @@ def video_generation(user_id, file_name, audio_id):
         db.commit()
         db.close()
     except:
-        logger.error("Update DB Failed")
+        logging.error("Update DB Failed")
         return
 
     # Generate Prompts
     prompt_file_dir = PROMPT_PATH / str(user_id)
-    prompt_dict = prompt_generation.generate_prompt(str(lyrics_file_dir / lyrics_file_name), author, title, 10)
+    prompt_dict = prompt_generation.generate_prompt(user_id, audio_id, str(lyrics_file_dir / lyrics_file_name), author, title, 10)
     with open(str(prompt_file_dir/ (str(lyric_id) + ".txt")), 'w') as f:
         json.dump(prompt_dict, f)
     
     # Generate Video
-    logger.info("Generating")
-
-    # print("Testing Start")
-    # with open('log.log', 'w') as f:
-    #     f.write('Working!' + str(time.time()))
-    # exit_code = subprocess.run(["python", "run.py", "--enable_animation_mode", "--settings", "runSettings_Template.txt"], capture_output=True, text=True, cwd="./DeforumStableDiffusionLocal/")
-    # with open('log.log', 'w') as f:
-    #     f.write('Complete')
-    #     f.write(str(exit_code.returncode))
-    #     f.write(str(exit_code.stdout))
+    logging.info("Generating for" + str(lyric_id))
+    exit_code = subprocess.run(["python", "run.py", "--enable_animation_mode", "--settings", str(prompt_file_dir/ (str(lyric_id) + ".txt"))], capture_output=True, text=True, cwd=str(BACKEND_ROOT_PATH / "DeforumStableDifussionLocal"))
+    logging.info("Generation Ends!")
+    
+    # Update Database
+    try:
+        db = connect_to_db()
+        cursor = db.cursor()
+        cursor.execute(f"UPDATE audio_input SET status = 2 WHERE audio_id = %s", [str(audio_id)])
+        db.commit()
+        db.close()
+    except:
+        logging.error("Update DB After Generation Failed")
+        return
   
 # Running app
 if __name__ == '__main__':

@@ -31,3 +31,4 @@ yarn-error.log*
 *.wav
 backend/MxLRC
 .env
+*.log
