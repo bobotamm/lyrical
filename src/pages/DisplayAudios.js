@@ -24,7 +24,7 @@ async function fetchAudioData() {
   return data;
 };
 
-function interpretStatus(status, userId, audioId) {
+function interpretStatus(status, audioId) {
   if (status == 0) {
     return "In Queue"
   }
@@ -33,9 +33,6 @@ function interpretStatus(status, userId, audioId) {
   }
   if (status == 2) {
     const userId = getCookieUserId();
-    if (userId == null) {
-      return null;
-    }
     return (Download(userId, audioId))
   }
 }
