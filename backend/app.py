@@ -239,7 +239,7 @@ def video_generation(user_id, file_name, audio_id):
     timestring = find_timestring(images_dir)
     images_file_names = timestring + "_%05d.png"
     video_file_name = str(VIDEOS_PATH / (user_id_audio_id + ".mp4"))
-    subprocess.run(["ffmpeg", "-y", "-vcodec", "png", "-r", str(FPS), "-start_number", "0", "-i", str(images_dir / images_file_names), "-frames:v", str(max_frames), "-c:v", "libx264", "-vf", "fps="+str(FPS), "-pix_fmt", "yuv420p", "-crf", "17", "-preset", "veryfast", video_file_name])
+    subprocess.run(["ffmpeg", "-nostdin", "-y", "-vcodec", "png", "-r", str(FPS), "-start_number", "0", "-i", str(images_dir / images_file_names), "-frames:v", str(max_frames), "-c:v", "libx264", "-vf", "fps="+str(FPS), "-pix_fmt", "yuv420p", "-crf", "17", "-preset", "veryfast", video_file_name])
 
     # Update Database
     try:
