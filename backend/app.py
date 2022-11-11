@@ -164,8 +164,8 @@ def download_file():
     requestData = json.loads(request.data)
     user_id = requestData['user_id']
     audio_id = requestData['audio_id']
-    print("Downloading ", str(user_id) + "_" + str(audio_id) + ".mp3 from ", str(VIDEOS_PATH))
-    return send_from_directory(str(VIDEOS_PATH), str(user_id) + "_" + str(audio_id) + ".mp3", as_attachment=True)
+    print("Downloading ", str(user_id) + "_" + str(audio_id) + ".mp4 from ", str(VIDEOS_PATH))
+    return send_from_directory(str(VIDEOS_PATH), str(user_id) + "_" + str(audio_id) + ".mp4", as_attachment=True)
     # response = make_response("download!", 200)
     # return response  
 
