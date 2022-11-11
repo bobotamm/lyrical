@@ -179,7 +179,7 @@ def generate_video():
     response = jsonify(message = "the request worked!")
     return response
 
-@celery.task(default_retry_delay=100000, max_retries=0)
+@celery.task()
 def video_generation(user_id, file_name, audio_id):
     logging.basicConfig(filename='sd.log', level=logging.DEBUG)
     # Find the author and title
