@@ -128,6 +128,7 @@ def upload_file():
     (AUDIO_INPUT_DIRECTORY / str(user_id)).mkdir(parents=True, exist_ok=True)
     (LYRICS_PATH / str(user_id)).mkdir(parents=True, exist_ok=True)
     (PROMPT_PATH / str(user_id)).mkdir(parents=True, exist_ok=True)
+    (VIDEOS_PATH).mkdir(parents=True, exist_ok=True)
     target_directory = AUDIO_INPUT_DIRECTORY / str(user_id)
     ending = 1
     file_name_raw, file_name_extention = file.filename.split(".")
@@ -237,7 +238,7 @@ def video_generation(user_id, file_name, audio_id):
     # Combine Videos
     timestring = find_timestring(images_dir)
     images_file_names = timestring + "_%05.png"
-    video_file_name = str(VIDEOS_PATH / "output.mp4")
+    video_file_name = str(VIDEOS_PATH / user_id_audio_id + ".mp4")
     subprocess.run(["ffmpeg", "-y", "-vcodec", "png", "-r", str(FPS), "-start_number", "0", "-i", str(images_dir / images_file_names), "-frames:v", str(max_frames), "-c:v", "libx264", "-vf", "fps="+str(FPS), "-pix_fmt", "yuv420p", "-crf", "17", "-preset", "veryfast", video_file_name])
 
     # Update Database
