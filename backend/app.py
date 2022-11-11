@@ -181,7 +181,6 @@ def generate_video():
 
 @celery.task(default_retry_delay=100000, max_retries=0)
 def video_generation(user_id, file_name, audio_id):
-    logging.basicConfig(filename='sd.log', level=logging.DEBUG)
     # Find the author and title
     recognize_result = recognize(str(AUDIO_INPUT_DIRECTORY / str(user_id) / file_name), os.getenv("AUDD_API_TOKEN")).json()
     if recognize_result['status'] != "success":
