@@ -160,8 +160,10 @@ def upload_file():
 # file extension is hard coded 
 @app.route('/download', methods = ['GET', 'POST'])
 def download_file():
-    downloads = os.path.join(current_app.root_path)
-    return send_from_directory(downloads, "test.mp3", as_attachment=True)
+    requestData = json.loads(request.data)
+    user_id = requestData['user_id']
+    audio_id = requestData['audio_id']
+    return send_from_directory(str(VIDEOS_PATH), str(user_id) + "_" + str(audio_id) + ".mp3", as_attachment=True)
     # response = make_response("download!", 200)
     # return response  
 

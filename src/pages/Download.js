@@ -1,6 +1,6 @@
 import { backendUrl } from "./Conf";
 
-function Download(audioId) {
+function Download(userId, audioId) {
     const getDownloadFile = async () => {
         let headers = new Headers();
     
@@ -13,6 +13,7 @@ function Download(audioId) {
         fetch(backendUrl+'/download', {
           method: 'POST',
           headers: headers,
+          body: JSON.stringify({"audio_id": audioId, "user_id": userId})
         })
           .then((response) => response.blob())
           .then((blob) => {
@@ -27,7 +28,7 @@ function Download(audioId) {
             // TODO: update name
             link.setAttribute(
               'download',
-              `downloadFile.jpeg`,
+              `fancy_mv.mp4`,
             );
     
             // Append to html link element page

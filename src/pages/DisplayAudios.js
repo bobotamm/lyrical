@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import {QueryClient, useQuery} from 'react-query'
 import { backendUrl } from "./Conf";
 import { getCookieUserId } from "./CookieUtils";
-import Download from "./Download"
+import {Download} from "./Download"
 
 
 async function fetchAudioData() {
@@ -24,7 +24,7 @@ async function fetchAudioData() {
   return data;
 };
 
-function interpretStatus(status) {
+function interpretStatus(status, userId, audioId) {
   if (status == 0) {
     return "In Queue"
   }
@@ -32,7 +32,11 @@ function interpretStatus(status) {
     return "Generating"
   }
   if (status == 2) {
-    return (<Download></Download>)
+    const userId = getCookieUserId();
+    if (userId == null) {
+      return null;
+    }
+    return (Download(userId, audioId))
   }
 }
 
@@ -57,7 +61,7 @@ function DisplayAudios(){
       </thead>
       <tbody>
         {/* iterate through the customers array and render a unique Customer component for each customer object in the array */}
-        { data.map(d => <tr key={d[0]}><td>{d[1]}</td><td>{interpretStatus(d[2])}</td></tr>) }
+        { data.map(d => <tr key={d[0]}><td>{d[1]}</td><td>{interpretStatus(d[2], d[0])}</td></tr>) }
       </tbody>
     </table>
     </>)
