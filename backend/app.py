@@ -179,9 +179,9 @@ def generate_video():
     response = jsonify(message = "the request worked!")
     return response
 
-@celery.task(default_retry_delay=100000)
+@celery.task(default_retry_delay=100000, max_retries=0)
 def video_generation(user_id, file_name, audio_id):
-    logging.basicConfig(filename='backend.log', level=logging.DEBUG)
+    logging.basicConfig(filename='sd.log', level=logging.DEBUG)
     # Find the author and title
     recognize_result = recognize(str(AUDIO_INPUT_DIRECTORY / str(user_id) / file_name), os.getenv("AUDD_API_TOKEN")).json()
     if recognize_result['status'] != "success":
@@ -219,6 +219,8 @@ def video_generation(user_id, file_name, audio_id):
         json.dump(prompt_dict, f)
     
     # Generate Video
+    with open("celery_log.log", "a") as f:
+        f.write("Generating for" + str(lyric_id))
     logging.info("Generating for" + str(lyric_id))
     exit_code = subprocess.run(["python", "run.py", "--enable_animation_mode", "--settings", str(prompt_file_dir/ (str(lyric_id) + ".txt"))], capture_output=True, text=True, cwd=str(BACKEND_ROOT_PATH / "DeforumStableDiffusionLocal"))
     logging.info("Generation Ends!")
