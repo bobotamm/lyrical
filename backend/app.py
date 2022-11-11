@@ -218,7 +218,7 @@ def video_generation(user_id, file_name, audio_id):
     
     # Generate Video
     logging.info("Generating for" + str(lyric_id))
-    exit_code = subprocess.run(["python", "run.py", "--enable_animation_mode", "--settings", str(prompt_file_dir/ (str(lyric_id) + ".txt"))], capture_output=True, text=True, cwd=str(BACKEND_ROOT_PATH / "DeforumStableDifussionLocal"))
+    exit_code = subprocess.run(["python", "run.py", "--enable_animation_mode", "--settings", str(prompt_file_dir/ (str(lyric_id) + ".txt"))], capture_output=True, text=True, cwd=str(BACKEND_ROOT_PATH / "DeforumStableDiffussionLocal"))
     logging.info("Generation Ends!")
     
     # Update Database
