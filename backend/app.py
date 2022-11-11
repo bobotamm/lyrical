@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify, make_response, redirect, url_for, sen
 import os
 from celery import Celery
 import time
-import requests
 import json
 import subprocess
 from flask_cors import CORS, cross_origin
@@ -11,6 +10,7 @@ import pymysql
 from song_recognization import recognize
 import prompt_generation
 import logging
+import datetime
 from pathlib import Path
 
 def make_celery(app):
@@ -48,6 +48,9 @@ AUDIO_INPUT_DIRECTORY = BACKEND_ROOT_PATH / "input" / "audios"
 LYRICS_PATH = BACKEND_ROOT_PATH / "input" / "lyrics"
 MXLRC_PATH = BACKEND_ROOT_PATH / "MxLRC"
 PROMPT_PATH = BACKEND_ROOT_PATH / "input" / "prompts"
+IMAGES_PATH = BACKEND_ROOT_PATH / "DeforumStableDiffusionLocal" / "output"
+VIDEOS_PATH = BACKEND_ROOT_PATH / "output"
+FPS = 10
 
 # Check if audio file extention is supported
 def allowed_file(filename):
@@ -215,17 +218,28 @@ def video_generation(user_id, file_name, audio_id):
 
     # Generate Prompts
     prompt_file_dir = PROMPT_PATH / str(user_id)
-    prompt_dict = prompt_generation.generate_prompt(user_id, audio_id, str(lyrics_file_dir / lyrics_file_name), author, title, 10)
+    prompt_dict = prompt_generation.generate_prompt(user_id, audio_id, str(lyrics_file_dir / lyrics_file_name), author, title, 1, FPS)
+    max_frames = prompt_dict['max_frames']
     with open(str(prompt_file_dir/ (str(lyric_id) + ".txt")), 'w') as f:
         json.dump(prompt_dict, f)
     
-    # Generate Video
+    
+    user_id_audio_id = str(user_id) + "_" + str(audio_id)
+    images_dir = IMAGES_PATH / user_id_audio_id
+
+    # Generate Images
     with open("celery_log.log", "a") as f:
         f.write("Generating for" + str(lyric_id))
     logging.info("Generating for" + str(lyric_id))
     exit_code = subprocess.run(["python", "run.py", "--enable_animation_mode", "--settings", str(prompt_file_dir/ (str(lyric_id) + ".txt"))], capture_output=True, text=True, cwd=str(BACKEND_ROOT_PATH / "DeforumStableDiffusionLocal"))
     logging.info("Generation Ends!")
     
+    # Combine Videos
+    timestring = find_timestring(images_dir)
+    images_file_names = timestring + "_%05.png"
+    video_file_name = str(VIDEOS_PATH / "output.mp4")
+    subprocess.run(["ffmpeg", "-y", "-vcodec", "png", "-r", str(FPS), "-start_number", "0", "-i", str(images_dir / images_file_names), "-frames:v", str(max_frames), "-c:v", "libx264", "-vf", "fps="+str(FPS), "-pix_fmt", "yuv420p", "-crf", "17", "-preset", "veryfast", video_file_name])
+
     # Update Database
     try:
         db = connect_to_db()
@@ -236,7 +250,17 @@ def video_generation(user_id, file_name, audio_id):
     except:
         logging.error("Update DB After Generation Failed")
         return
-  
+
+def find_timestring(images_dir):
+    timestring = None
+    for f in images_dir.iterdir():
+        file_name = f.name
+        if file_name.endswith(".png"):
+            timestring = file_name.split(".")[0].split("_")[0]
+            break
+    return timestring
+
+
 # Running app
 if __name__ == '__main__':
     app.run(debug=True)

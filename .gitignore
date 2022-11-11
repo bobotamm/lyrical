@@ -32,3 +32,4 @@ yarn-error.log*
 backend/MxLRC
 .env
 *.log
+*.mp4
