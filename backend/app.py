@@ -62,7 +62,7 @@ def connect_to_db():
         password=os.getenv("MYSQL_PASSWORD")
     )
     return db
-# db = connect_to_db()
+db = connect_to_db()
 # Register
 @app.route('/register', methods = ['POST'])
 def register():
@@ -114,6 +114,7 @@ def display():
 # Route for seeing a data
 @app.route('/upload', methods = ['GET', 'POST'])
 def upload_file():
+    print("Upload Once")
     file = request.files['myFile']
     user_id = request.form['user_id']
     # Prevent processing not supported files
@@ -146,7 +147,7 @@ def upload_file():
         return jsonify(FAILURE)
 
     # Initiate a task
-    video_generation.delay(user_id, file_name, audio_id)
+    # video_generation.delay(user_id, file_name, audio_id)
 
     response = jsonify(SUCCESS)
     return response
@@ -180,6 +181,7 @@ def generate_video():
 
 @celery.task()
 def video_generation(user_id, file_name, audio_id):
+    logging.basicConfig(filename='backend.log', level=logging.DEBUG)
     # Find the author and title
     recognize_result = recognize(str(AUDIO_INPUT_DIRECTORY / str(user_id) / file_name), os.getenv("AUDD_API_TOKEN")).json()
     if recognize_result['status'] != "success":
