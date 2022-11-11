@@ -33,7 +33,8 @@ function interpretStatus(status, audioId) {
   }
   if (status == 2) {
     const userId = getCookieUserId();
-    return (Download(userId, audioId))
+    const audioIdCopy = audioId;
+    return (Download(userId, audioIdCopy))
   }
 }
 

@@ -110,6 +110,7 @@ def display():
     cursor.execute(f"SELECT audio_id, audio_file_name, status FROM audio_input WHERE user_id = %s;", (str(user_id)))
     db_res = cursor.fetchall()
     response = SUCCESS.copy()
+    print(db_res)
     response['audio_data'] = db_res
     return jsonify(response)
 
