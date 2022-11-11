@@ -1,6 +1,6 @@
 import { backendUrl } from "./Conf";
 
-function Download(userId, audioId) {
+export function Download(userId, audioId) {
     const getDownloadFile = async () => {
         let headers = new Headers();
     
@@ -50,4 +50,3 @@ function Download(userId, audioId) {
         </div>
     );
 }
-export default Download;
