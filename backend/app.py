@@ -147,7 +147,7 @@ def upload_file():
         return jsonify(FAILURE)
 
     # Initiate a task
-    # video_generation.delay(user_id, file_name, audio_id)
+    video_generation.delay(user_id, file_name, audio_id)
 
     response = jsonify(SUCCESS)
     return response
@@ -179,7 +179,7 @@ def generate_video():
     response = jsonify(message = "the request worked!")
     return response
 
-@celery.task()
+@celery.task(default_retry_delay=100000, max_retries=0)
 def video_generation(user_id, file_name, audio_id):
     with open("celery_log.log", "a") as f:
         f.write("Generating start")
