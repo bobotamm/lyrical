@@ -46,7 +46,7 @@ def prompt_engineering(lyrics):
 
 # Generate intial prompt for frame 0
 def prompt_intialization(author, title):
-    return 'A detailed painting of ' + title + ',' + ' a portrait of ' + author
+    return 'A detailed painting of ' + title
 
 # Generate animation_prompts for Stable Diffusion
 def transform_lyrics_to_prompt(author, title, lyrics_list, fps):
