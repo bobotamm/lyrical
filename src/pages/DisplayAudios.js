@@ -4,6 +4,8 @@ import {QueryClient, useQuery} from 'react-query'
 import { backendUrl } from "./Conf";
 import { getCookieUserId } from "./CookieUtils";
 import {Download} from "./Download"
+import './Homepage.css'
+import './DisplayAudios.css'
 
 
 async function fetchAudioData() {
@@ -41,27 +43,29 @@ function interpretStatus(status, audioId) {
 function DisplayAudios(){
     const {data, error, isError, isLoading } = useQuery('audio', fetchAudioData,{fetchPolicy: 'cache-and-network'})
     if (!data || isLoading) {
-      return <div>Loading!</div>;
+      return <div className="upload-title">Loading!</div>;
     }
     if (isError) {
-      return <div>Error</div>
+      return <div className="upload-title">Error</div>
     }
     return (<>
-    <div>
-      These are the files you have uploaded! A download button would appear when the video is ready!
+    <h3 className="upload-title">
+      These are the files you have uploaded! <br></br> A download button would appear when the video is ready!
+    </h3>
+    <div className="button-container">
+      <table className="display-table">
+        <thead className="display-thead">
+          <tr>
+            <th><span className="table-text">File Name</span></th>
+            <th><span className="table-text">Status</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {/* iterate through the customers array and render a unique Customer component for each customer object in the array */}
+          { data.map(d => <tr><td><span className="table-text">{d[1]}</span></td><td><span className="table-text">{interpretStatus(d[2], d[0])}</span></td></tr>) }
+        </tbody>
+      </table>
     </div>
-    <table border="1">
-      <thead>
-        <tr>
-          <th>File Name</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {/* iterate through the customers array and render a unique Customer component for each customer object in the array */}
-        { data.map(d => <tr key={d[0]}><td>{d[1]}</td><td>{interpretStatus(d[2], d[0])}</td></tr>) }
-      </tbody>
-    </table>
     </>)
 }
 export default DisplayAudios;

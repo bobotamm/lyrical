@@ -1,4 +1,5 @@
 import { backendUrl } from "./Conf";
+import "./DisplayAudios.css"
 
 export function Download(userId, audioId) {
     const getDownloadFile = async () => {
@@ -44,10 +45,10 @@ export function Download(userId, audioId) {
       }
 
     return (
-        <div>
-            <button onClick={() => { getDownloadFile() }}>
+        <span className="table-text">
+            <button onClick={() => { getDownloadFile()}} >
                 Download Video
             </button>
-        </div>
+        </span>
     );
 }

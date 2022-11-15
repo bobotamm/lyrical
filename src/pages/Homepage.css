@@ -5,11 +5,40 @@
   justify-content: center;
 }
 
-.upload{
+.upload-title{
   width: '100%'; 
   float: 'center'; 
-  padding: '25';
+  padding: '0';
   justify-content: center;
-
-
+  padding-left: 10%;
+  font-size: 25px;
 }
+
+.upload-text{
+  width: '100%'; 
+  float: 'center'; 
+  padding: '0';
+  justify-content: center;
+  padding-left: 10%;
+  font-size: 20px;
+}
+
+.upload-file{
+  width: '100%'; 
+  display: 'flex';
+  padding-left: 10%;
+  font-size: 18px;
+}
+
+.upload-button{
+  height: '50%';
+  width: '100%'; 
+  display: 'flex';
+  font-size: 18px;
+}
+
+.button-container {
+  padding-left: 10%;
+  display: inline-block;
+}
+

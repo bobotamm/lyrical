@@ -68,15 +68,15 @@ class Homepage extends Component {
     if (this.state.selectedFile) {
       return (
         <div>
-          <h2>File Details:</h2>
-          <p>File Name: {this.state.selectedFile.name}</p>
-          <p>File Type: {this.state.selectedFile.type}</p>
+          <h2 className='upload-title'>File Details:</h2>
+          <p className='upload-text'>File Name: {this.state.selectedFile.name}</p>
+          <p className='upload-text'> File Type: {this.state.selectedFile.type}</p>
         </div>
       );
     } else {
       return (
         <div>
-          <h4>Choose before pressing the upload button</h4>
+          <h4 className='upload-title'>Choose before pressing the upload button</h4>
         </div>
       );
     }
@@ -106,18 +106,18 @@ class Homepage extends Component {
     return (
       <div>
         {checkLoggedIn()}
-        <h3>
+        <h3 className='upload-title'>
           Upload your song here!
         </h3>
 
         <div>
-          <input type="file" onChange={this.onFileChange} />
-          <button onClick={this.onFileUpload}>
-            Upload!
-          </button>
+          <input type="file" onChange={this.onFileChange} class="upload-file"/>
         </div>
+        
         {this.fileData()}
         {/* <GenerateVideo /> */}
+        <div class="button-container"><button onClick={this.onFileUpload}  class="upload-button"><p>Upload</p></button></div>
+        
         <QueryClientProvider client={queryClient} contextSharing={true}><DisplayAudios /></QueryClientProvider>
       </div>
     );
