@@ -6,3 +6,4 @@ flask_cors
 python-dotenv
 pymysql
 tinytag==1.0.1
+moviepy

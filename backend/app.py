@@ -12,6 +12,7 @@ import prompt_generation
 import logging
 import datetime
 from pathlib import Path
+from moviepy.editor import *
 
 def make_celery(app):
     celery = Celery(
@@ -242,8 +243,20 @@ def video_generation(user_id, file_name, audio_id):
     # Combine Videos
     timestring = find_timestring(images_dir)
     images_file_names = timestring + "_%05d.png"
-    video_file_name = str(VIDEOS_PATH / (user_id_audio_id + ".mp4"))
-    subprocess.run(["ffmpeg", "-nostdin", "-y", "-vcodec", "png", "-r", str(FPS), "-start_number", "0", "-i", str(images_dir / images_file_names), "-frames:v", str(max_frames), "-c:v", "libx264", "-vf", "fps="+str(FPS), "-pix_fmt", "yuv420p", "-crf", "17", "-preset", "veryfast", video_file_name])
+    silent_video_file_name = str(VIDEOS_PATH / (user_id_audio_id + "_silent.mp4"))
+    subprocess.run(["ffmpeg", "-nostdin", "-y", "-vcodec", "png", "-r", str(FPS), "-start_number", "0", "-i", str(images_dir / images_file_names), "-frames:v", str(max_frames), "-c:v", "libx264", "-vf", "fps="+str(FPS), "-pix_fmt", "yuv420p", "-crf", "17", "-preset", "veryfast", silent_video_file_name])
+
+    # Sync Videos with Music
+    sync_video_file_name = str(VIDEOS_PATH / (user_id_audio_id + ".mp4"))
+    video_clip = VideoFileClip(silent_video_file_name)
+    audio_clip = AudioFileClip(str(AUDIO_INPUT_DIRECTORY / str(user_id) / file_name))
+    min_duration = min(video_clip.duration, audio_clip.duration)
+    new_video_clip = video_clip.subclip(0, min_duration)
+    new_audio_clip = audio_clip.subclip(0, min_duration)
+    composite_audio = CompositeAudioClip([new_audio_clip])
+    new_video_clip.audio = composite_audio
+    new_video_clip.write_videofile("./output/output.mp4")
+    
 
     # Update Database
     try:
