@@ -255,7 +255,7 @@ def video_generation(user_id, file_name, audio_id):
     new_audio_clip = audio_clip.subclip(0, min_duration)
     composite_audio = CompositeAudioClip([new_audio_clip])
     new_video_clip.audio = composite_audio
-    new_video_clip.write_videofile("./output/output.mp4")
+    new_video_clip.write_videofile(sync_video_file_name)
     
 
     # Update Database
