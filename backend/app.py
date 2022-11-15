@@ -52,6 +52,7 @@ PROMPT_PATH = BACKEND_ROOT_PATH / "input" / "prompts"
 IMAGES_PATH = BACKEND_ROOT_PATH / "DeforumStableDiffusionLocal" / "output"
 VIDEOS_PATH = BACKEND_ROOT_PATH / "output"
 FPS = 10
+VIDEO_LENGTH_LIMIT = 30
 
 # Check if audio file extention is supported
 def allowed_file(filename):
@@ -229,7 +230,7 @@ def video_generation(user_id, file_name, audio_id):
 
     # Generate Prompts
     prompt_file_dir = PROMPT_PATH / str(user_id)
-    prompt_dict = prompt_generation.generate_prompt(user_id, audio_id, str(lyrics_file_dir / lyrics_file_name), author, title, 10, FPS)
+    prompt_dict = prompt_generation.generate_prompt(user_id, audio_id, str(lyrics_file_dir / lyrics_file_name), author, title, VIDEO_LENGTH_LIMIT, FPS)
     max_frames = prompt_dict['max_frames']
     with open(str(prompt_file_dir/ (str(lyric_id) + ".txt")), 'w') as f:
         json.dump(prompt_dict, f)
