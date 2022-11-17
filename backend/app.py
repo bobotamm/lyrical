@@ -52,7 +52,9 @@ PROMPT_PATH = BACKEND_ROOT_PATH / "input" / "prompts"
 IMAGES_PATH = BACKEND_ROOT_PATH / "DeforumStableDiffusionLocal" / "output"
 VIDEOS_PATH = BACKEND_ROOT_PATH / "output"
 FPS = 10
-VIDEO_LENGTH_LIMIT = 30
+VIDEO_LENGTH_LIMIT = 10
+if os.getenv("VIDEO_LENGTH_LIMIT") is not None:
+    VIDEO_LENGTH_LIMIT = int(os.getenv("VIDEO_LENGTH_LIMIT"))
 
 # Check if audio file extention is supported
 def allowed_file(filename):
