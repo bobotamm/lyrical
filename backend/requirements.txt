@@ -7,3 +7,4 @@ python-dotenv
 pymysql
 tinytag==1.0.1
 moviepy
+gdown
