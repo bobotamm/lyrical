@@ -208,6 +208,7 @@ def video_generation(user_id, file_name, audio_id, style):
         return
     author = recognize_result['result']['artist']
     title = recognize_result['result']['title']
+    print("Recognized ", author, title)
 
     # Download the lyrics
     lyrics_file_dir = LYRICS_PATH / str(user_id)
