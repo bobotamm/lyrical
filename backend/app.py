@@ -111,7 +111,7 @@ def display():
     user_id = requestData['user_id']
     print("User id", user_id)
     cursor = connect_to_db().cursor()
-    cursor.execute(f"SELECT audio_id, audio_file_name, status FROM audio_input WHERE user_id = %s;", (str(user_id)))
+    cursor.execute(f"SELECT audio_id, audio_file_name, style, status FROM audio_input WHERE user_id = %s;", (str(user_id)))
     db_res = cursor.fetchall()
     response = SUCCESS.copy()
     print(db_res)
@@ -125,6 +125,7 @@ def upload_file():
     print("Upload Once")
     file = request.files['myFile']
     user_id = request.form['user_id']
+    style = request.form['style']
     # Prevent processing not supported files
     if file.filename == '' or not allowed_file(file.filename):
         return jsonify(FAILURE)
@@ -148,7 +149,7 @@ def upload_file():
     try:
         db = connect_to_db()
         cursor = db.cursor()
-        cursor.execute(f"INSERT INTO audio_input(audio_file_name, status, user_id) VALUES (%s, %s, %s); ", (file_name, 0, int(user_id)))
+        cursor.execute(f"INSERT INTO audio_input(audio_file_name, status, style, user_id) VALUES (%s, %s, %s, %s); ", (file_name, 0, style, int(user_id)))
         db.commit()
         audio_id = cursor.lastrowid
         db.close()
@@ -156,7 +157,7 @@ def upload_file():
         return jsonify(FAILURE)
 
     # Initiate a task
-    video_generation.delay(user_id, file_name, audio_id)
+    video_generation.delay(user_id, file_name, audio_id, style)
 
     response = jsonify(SUCCESS)
     return response
@@ -192,7 +193,7 @@ def generate_video():
     return response
 
 @celery.task(default_retry_delay=100000, max_retries=0)
-def video_generation(user_id, file_name, audio_id):
+def video_generation(user_id, file_name, audio_id, style):
     # Check video status, avoid repeating tasks
     cursor = connect_to_db().cursor()
     cursor.execute(f"SELECT status FROM audio_input WHERE user_id = %s AND audio_id = %s;", (str(user_id), str(audio_id)))
@@ -232,7 +233,7 @@ def video_generation(user_id, file_name, audio_id):
 
     # Generate Prompts
     prompt_file_dir = PROMPT_PATH / str(user_id)
-    prompt_dict = prompt_generation.generate_prompt(user_id, audio_id, str(lyrics_file_dir / lyrics_file_name), author, title, VIDEO_LENGTH_LIMIT, FPS)
+    prompt_dict = prompt_generation.generate_prompt(user_id, audio_id, str(lyrics_file_dir / lyrics_file_name), author, title, style, VIDEO_LENGTH_LIMIT, FPS)
     max_frames = prompt_dict['max_frames']
     with open(str(prompt_file_dir/ (str(lyric_id) + ".txt")), 'w') as f:
         json.dump(prompt_dict, f)

@@ -57,12 +57,13 @@ function DisplayAudios(){
         <thead className="display-thead">
           <tr>
             <th><span className="table-text">File Name</span></th>
+            <th><span className="table-text">Style</span></th>
             <th><span className="table-text">Status</span></th>
           </tr>
         </thead>
         <tbody>
           {/* iterate through the customers array and render a unique Customer component for each customer object in the array */}
-          { data.map(d => <tr><td><span className="table-text">{d[1]}</span></td><td><span className="table-text">{interpretStatus(d[2], d[0])}</span></td></tr>) }
+          { data.map(d => <tr><td><span className="table-text">{d[1]}</span></td><td><span className="table-text">{d[2]}</span></td><td><span className="table-text">{interpretStatus(d[3], d[0])}</span></td></tr>) }
         </tbody>
       </table>
     </div>

@@ -41,20 +41,30 @@ def parse_lrc_file(file_name):
 
 # Generate prompt from lyrics
 # TODO: Extend prompt engineering
-def prompt_engineering(lyrics):
-    return 'A pencil sketch of ' + lyrics
+def prompt_engineering(lyrics, style):
+    if style == "painting":
+        return 'A detailed painting of ' + lyrics
+    if style == "pencil_sketch":
+        return 'A pencil sketch of ' + lyrics
+    if style == "low_poly":
+        return 'low poly style, ' + lyrics
+    if style == "picasso":
+        return 'A Picasso painting of ' + lyrics
+    if style == "da_vinci":
+        return 'A Da Vinci painting of ' + lyrics
+    return 'A detailed painting of ' + lyrics
 
-# Generate intial prompt for frame 0
-def prompt_intialization(author, title):
-    return 'A pencil sketch of ' + title
+# # Generate intial prompt for frame 0
+# def prompt_intialization(author, title):
+#     return 'A pencil sketch of ' + title
 
 # Generate animation_prompts for Stable Diffusion
-def transform_lyrics_to_prompt(author, title, lyrics_list, fps):
+def transform_lyrics_to_prompt(author, title, lyrics_list, style, fps):
     animation_prompts = {}
-    animation_prompts[0] = prompt_intialization(author, title)
+    animation_prompts[0] = prompt_engineering(title, style)
     for lyrics_time, lyrics in lyrics_list:
         lyrics_frame = int(lyrics_time * fps)
-        prompt = prompt_engineering(lyrics)
+        prompt = prompt_engineering(lyrics, style)
         animation_prompts[lyrics_frame] = prompt
     return animation_prompts
 
@@ -73,9 +83,9 @@ def strength_schedule_generation(animation_prompts):
     return res
 
 # Generate prompt given author, title, and fps
-def generate_prompt(user_id, audio_id, lrc_file_name, author, title, length = -1, fps = 10):
+def generate_prompt(user_id, audio_id, lrc_file_name, author, title, style, length = -1, fps = 10):
     parsed_file = parse_lrc_file(lrc_file_name)
-    animation_prompts = transform_lyrics_to_prompt(author, title, parsed_file['lyrics'], fps)
+    animation_prompts = transform_lyrics_to_prompt(author, title, parsed_file['lyrics'], style, fps)
     strength_schedule = strength_schedule_generation(animation_prompts)
 
     f = open(str(PROMPT_PATH / "template.txt"))

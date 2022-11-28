@@ -39,6 +39,12 @@
 
 .button-container {
   padding-left: 10%;
-  display: inline-block;
+  padding-top: 20px;
 }
 
+.select-container {
+  padding-left: 10%;
+  width: 300px;
+}
+
+.select-option { font-size:18px; }

@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS audio_input (
     audio_id	    INT             NOT NULL    AUTO_INCREMENT,
     audio_file_name	VARCHAR(128)    NOT NULL,
     status	        INT             NOT NULL,
+    style           VARCHAR(64)     NOT NULL,
     user_id	        INT             NOT NULL,
     create_time	    TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (audio_id)

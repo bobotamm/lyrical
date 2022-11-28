@@ -14,7 +14,8 @@ class Homepage extends Component {
   state = {
     // Initially, no file is selected
     selectedFile: null,
-    downloadFile: null
+    downloadFile: null,
+    selectedStyle: null
   };
 
   // On file select (from the pop up)
@@ -36,6 +37,7 @@ class Homepage extends Component {
       this.state.selectedFile.name
     );
     formData.append("user_id", getCookieUserId());
+    formData.append("style", this.state.selectedStyle);
 
     // Details of the uploaded file
     console.log(this.state.selectedFile);
@@ -76,7 +78,7 @@ class Homepage extends Component {
     } else {
       return (
         <div>
-          <h4 className='upload-title'>Choose before pressing the upload button</h4>
+          <h4 className='upload-title'>Choose a style before pressing the upload button</h4>
         </div>
       );
     }
@@ -84,9 +86,7 @@ class Homepage extends Component {
 
   onDownload = () => {
 
-  }
-
-  
+  }  
 
   onGenerate = async () => {
     const response = await fetch(backendUrl+"/generate", {
@@ -96,6 +96,11 @@ class Homepage extends Component {
     if (response.ok) {
       console.log("it worked!");
     }
+  };
+
+  onStyleChange = (e) => {
+    console.log(e.target.value)
+    this.setState({ selectedStyle: e.target.value });
   };
 
   render() {
@@ -113,10 +118,22 @@ class Homepage extends Component {
         <div>
           <input type="file" onChange={this.onFileChange} class="upload-file"/>
         </div>
-        
         {this.fileData()}
+        
         {/* <GenerateVideo /> */}
-        <div class="button-container"><button onClick={this.onFileUpload}  class="upload-button"><p>Upload</p></button></div>
+        <h3 className='upload-title'>Style: </h3>
+        <div class="select-container">
+          <select class="select-option" name="style-list" id="style-list" onChange={this.onStyleChange}>
+              <option class="select-option" value="painting">Painting</option>
+              <option class="select-option" value="pencil_sketch">Pencil Sketch</option>
+              <option class="select-option" value="low_poly">Low Poly</option>
+              <option class="select-option" value="picasso">Picasso</option>
+              <option class="select-option" value="da_vinci">Da Vinci</option>
+          </select>
+        </div>
+        <div class="button-container">
+            <button onClick={this.onFileUpload}  class="upload-button"><p>Upload</p></button>
+        </div>
         
         <QueryClientProvider client={queryClient} contextSharing={true}><DisplayAudios /></QueryClientProvider>
       </div>
