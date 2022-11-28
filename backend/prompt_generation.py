@@ -42,11 +42,11 @@ def parse_lrc_file(file_name):
 # Generate prompt from lyrics
 # TODO: Extend prompt engineering
 def prompt_engineering(lyrics):
-    return 'A detailed painting of ' + lyrics
+    return 'A pencil sketch of ' + lyrics
 
 # Generate intial prompt for frame 0
 def prompt_intialization(author, title):
-    return 'A detailed painting of ' + title
+    return 'A pencil sketch of ' + title
 
 # Generate animation_prompts for Stable Diffusion
 def transform_lyrics_to_prompt(author, title, lyrics_list, fps):
