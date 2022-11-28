@@ -15,7 +15,7 @@ class Homepage extends Component {
     // Initially, no file is selected
     selectedFile: null,
     downloadFile: null,
-    selectedStyle: null
+    selectedStyle: "painting"
   };
 
   // On file select (from the pop up)
