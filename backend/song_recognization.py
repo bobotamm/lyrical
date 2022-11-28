@@ -10,5 +10,3 @@ def recognize(file_name, api_token):
     }
     result = requests.post('https://api.audd.io/', data=data, files=files)
     return result
-
-print(recognize("Rihanna_Diamonds.mp3", "d1e1b6a951741d66e855f5d73e0b2315").json())
